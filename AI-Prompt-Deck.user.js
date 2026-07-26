@@ -132,12 +132,22 @@
       toast = document.createElement('div');
       toast.id = `${APPID}-toast`;
       toast.style.cssText = `
-        position: fixed; bottom: 20px; left: 20px;
-        background: rgba(24, 24, 37, 0.92); color: #fff;
-        padding: 8px 16px; border-radius: 8px; font-size: 13px;
-        border: 1px solid rgba(255,152,0,0.3); z-index: 2147483647;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.4); backdrop-filter: blur(8px);
-        transition: opacity 0.3s ease; opacity: 0; pointer-events: none;
+        position: fixed !important;
+        bottom: 20px !important;
+        right: 76px !important;
+        left: auto !important;
+        background: rgba(24, 24, 37, 0.92) !important;
+        color: #fff !important;
+        padding: 8px 16px !important;
+        border-radius: 8px !important;
+        font-size: 13px !important;
+        border: 1px solid rgba(255,152,0,0.3) !important;
+        z-index: 2147483647 !important;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.4) !important;
+        backdrop-filter: blur(8px) !important;
+        transition: opacity 0.3s ease !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
       `;
       document.body.appendChild(toast);
     }
@@ -207,23 +217,48 @@
   let quickBarEl = null;
 
   function createToggleBtn() {
+    if (!document.body) return;
     if (document.getElementById(`${APPID}-toggle-btn`)) return;
 
     const btn = document.createElement('button');
     btn.id = `${APPID}-toggle-btn`;
-    btn.innerHTML = '✏️';
+    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y1="13"/><line x1="16" y1="17" x2="8" y1="17"/><line x1="10" y1="9" x2="8" y1="9"/></svg>`;
     btn.title = 'AI Prompt Deck';
     btn.style.cssText = `
-      position: fixed; bottom: 85px; left: 20px; z-index: 2147483647;
-      width: 44px; height: 44px; border-radius: 50%;
-      background: linear-gradient(135deg, #ff9800, #f57c00);
-      color: #fff; font-size: 20px; border: none; cursor: pointer;
-      box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);
-      display: flex; align-items: center; justify-content: center;
-      transition: transform 0.2s;
+      position: fixed !important;
+      bottom: 85px !important;
+      right: 76px !important;
+      left: auto !important;
+      z-index: 2147483647 !important;
+      width: 48px !important;
+      height: 48px !important;
+      border-radius: 16px !important;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.92), rgba(239, 68, 68, 0.92)) !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+      cursor: pointer !important;
+      box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+      backdrop-filter: blur(12px) !important;
+      -webkit-backdrop-filter: blur(12px) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      pointer-events: auto !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      outline: none !important;
     `;
-    btn.onmouseover = () => { btn.style.transform = 'scale(1.1)'; };
-    btn.onmouseout = () => { btn.style.transform = 'scale(1)'; };
+    btn.onmouseover = () => {
+      btn.style.transform = 'translateY(-3px) scale(1.08)';
+      btn.style.boxShadow = '0 12px 30px rgba(245, 158, 11, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.5)';
+    };
+    btn.onmouseout = () => {
+      btn.style.transform = 'translateY(0) scale(1)';
+      btn.style.boxShadow = '0 8px 25px rgba(245, 158, 11, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35)';
+    };
     btn.onclick = toggleQuickBar;
 
     document.body.appendChild(btn);
@@ -242,11 +277,24 @@
       quickBarEl = document.createElement('div');
       quickBarEl.id = `${APPID}-quick-bar`;
       quickBarEl.style.cssText = `
-        position: fixed; bottom: 135px; left: 20px; z-index: 2147483647;
-        width: 320px; max-height: 75vh; overflow-y: auto;
-        background: #181825; color: #cdd6f4; border-radius: 12px;
-        padding: 14px; border: 1px solid rgba(255,152,0,0.3);
-        box-shadow: 0 8px 32px rgba(0,0,0,0.5); font-family: system-ui, sans-serif;
+        position: fixed !important;
+        bottom: 140px !important;
+        right: 76px !important;
+        left: auto !important;
+        z-index: 2147483647 !important;
+        width: 330px !important;
+        max-height: 75vh !important;
+        overflow-y: auto !important;
+        background: #181825 !important;
+        color: #cdd6f4 !important;
+        border-radius: 14px !important;
+        padding: 14px !important;
+        border: 1px solid rgba(255,152,0,0.3) !important;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.6) !important;
+        font-family: system-ui, -apple-system, sans-serif !important;
+        pointer-events: auto !important;
+        visibility: visible !important;
+        opacity: 1 !important;
       `;
       document.body.appendChild(quickBarEl);
     }

@@ -707,23 +707,47 @@
   let settingsPanelEl = null;
 
   function createSettingsButton() {
+    if (!document.body) return;
     if (document.getElementById(`${APPID}-settings-btn`)) return;
 
     const btn = document.createElement('button');
     btn.id = `${APPID}-settings-btn`;
-    btn.innerHTML = '🎨';
+    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.7-.75 1.7-1.67 0-.42-.16-.81-.44-1.12-.26-.29-.42-.69-.42-1.12 0-.92.75-1.67 1.67-1.67H16c3.3 0 6-2.7 6-6 0-4.7-4.3-8.5-10-8.5z"/></svg>`;
     btn.title = 'AI Theme Custom';
     btn.style.cssText = `
-      position: fixed; bottom: 85px; right: 20px; z-index: 2147483647;
-      width: 44px; height: 44px; border-radius: 50%;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      color: #fff; font-size: 20px; border: none; cursor: pointer;
-      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-      display: flex; align-items: center; justify-content: center;
-      transition: transform 0.2s;
+      position: fixed !important;
+      bottom: 85px !important;
+      right: 20px !important;
+      z-index: 2147483647 !important;
+      width: 48px !important;
+      height: 48px !important;
+      border-radius: 16px !important;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.92), rgba(139, 92, 246, 0.92)) !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+      cursor: pointer !important;
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+      backdrop-filter: blur(12px) !important;
+      -webkit-backdrop-filter: blur(12px) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      pointer-events: auto !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      outline: none !important;
     `;
-    btn.onmouseover = () => { btn.style.transform = 'scale(1.1)'; };
-    btn.onmouseout = () => { btn.style.transform = 'scale(1)'; };
+    btn.onmouseover = () => {
+      btn.style.transform = 'translateY(-3px) scale(1.08)';
+      btn.style.boxShadow = '0 12px 30px rgba(99, 102, 241, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.5)';
+    };
+    btn.onmouseout = () => {
+      btn.style.transform = 'translateY(0) scale(1)';
+      btn.style.boxShadow = '0 8px 25px rgba(99, 102, 241, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35)';
+    };
     btn.onclick = toggleSettingsPanel;
 
     document.body.appendChild(btn);
@@ -742,11 +766,23 @@
       settingsPanelEl = document.createElement('div');
       settingsPanelEl.id = `${APPID}-settings-panel`;
       settingsPanelEl.style.cssText = `
-        position: fixed; bottom: 135px; right: 20px; z-index: 2147483647;
-        width: 320px; max-height: 80vh; overflow-y: auto;
-        background: #181825; color: #cdd6f4; border-radius: 12px;
-        padding: 16px; border: 1px solid rgba(255,255,255,0.12);
-        box-shadow: 0 8px 32px rgba(0,0,0,0.5); font-family: system-ui, sans-serif;
+        position: fixed !important;
+        bottom: 140px !important;
+        right: 20px !important;
+        z-index: 2147483647 !important;
+        width: 330px !important;
+        max-height: 80vh !important;
+        overflow-y: auto !important;
+        background: #181825 !important;
+        color: #cdd6f4 !important;
+        border-radius: 14px !important;
+        padding: 16px !important;
+        border: 1px solid rgba(255,255,255,0.15) !important;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.6) !important;
+        font-family: system-ui, -apple-system, sans-serif !important;
+        pointer-events: auto !important;
+        visibility: visible !important;
+        opacity: 1 !important;
       `;
       document.body.appendChild(settingsPanelEl);
     }
