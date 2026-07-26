@@ -19,7 +19,7 @@
 // @grant        GM_getValue
 // @grant        unsafeWindow
 // @connect      *
-// @run-at       document-start
+// @run-at       document-idle
 // @noframes
 // ==/UserScript==
 
@@ -37,9 +37,9 @@
   };
 
   function detectPlatform() {
-    const host = window.location.hostname;
-    if (host.includes('chatgpt.com')) return PLATFORMS.CHATGPT;
-    if (host.includes('gemini.google.com')) return PLATFORMS.GEMINI;
+    const host = window.location.hostname.toLowerCase();
+    if (host.includes('chatgpt.com') || host.includes('openai.com')) return PLATFORMS.CHATGPT;
+    if (host.includes('gemini.google.com') || host.includes('bard.google.com')) return PLATFORMS.GEMINI;
     return null;
   }
 
@@ -576,10 +576,12 @@
   let styleEl = null;
 
   function ensureStyleElement() {
-    if (!styleEl || !document.head.contains(styleEl)) {
+    const parent = document.head || document.documentElement || document.body;
+    if (!parent) return;
+    if (!styleEl || !parent.contains(styleEl)) {
       styleEl = document.createElement('style');
       styleEl.id = `${APPID}-theme-styles`;
-      document.head.appendChild(styleEl);
+      parent.appendChild(styleEl);
     }
   }
 
@@ -628,6 +630,7 @@
         --aitc-asst-bg: ${asst.bubbleBackgroundColor || 'transparent'};
         --aitc-user-text: ${user.textColor || 'inherit'};
         --aitc-user-bg: ${user.bubbleBackgroundColor || 'transparent'};
+        ${win.backgroundColor ? `--main-surface-primary: ${win.backgroundColor} !important; --main-surface-secondary: ${win.backgroundColor} !important;` : ''}
       }
     `;
 
@@ -640,11 +643,11 @@
     }
 
     if (win.backgroundColor) {
-      css += `body, main { background-color: ${win.backgroundColor} !important; }`;
+      css += `body, main, #__next, [role="main"], section, .flex-1, .conversation-container, chat-app, infinite-scroller { background-color: ${win.backgroundColor} !important; }`;
     }
     if (win.backgroundImageUrl) {
       css += `
-        body {
+        body, main, #__next {
           background-image: url("${win.backgroundImageUrl}") !important;
           background-size: ${win.backgroundSize || 'cover'} !important;
           background-position: ${win.backgroundPosition || 'center center'} !important;
@@ -662,14 +665,14 @@
 
     if (!isGemini) {
       css += `
-        [data-message-author-role="assistant"] {
+        [data-message-author-role="assistant"], .agent-turn {
           color: ${asst.textColor || 'inherit'} !important;
           background-color: ${asst.bubbleBackgroundColor || 'transparent'} !important;
           padding: ${asst.bubblePadding ?? 8}px !important;
           border-radius: ${asst.bubbleBorderRadius ?? 10}px !important;
           max-width: ${asst.bubbleMaxWidth ? asst.bubbleMaxWidth + '%' : '100%'} !important;
         }
-        [data-message-author-role="user"] {
+        [data-message-author-role="user"], .user-turn {
           color: ${user.textColor || 'inherit'} !important;
           background-color: ${user.bubbleBackgroundColor || 'transparent'} !important;
           padding: ${user.bubblePadding ?? 8}px !important;
@@ -679,13 +682,13 @@
       `;
     } else {
       css += `
-        model-response {
+        model-response, .model-response-text, .response-container {
           color: ${asst.textColor || 'inherit'} !important;
           background-color: ${asst.bubbleBackgroundColor || 'transparent'} !important;
           padding: ${asst.bubblePadding ?? 8}px !important;
           border-radius: ${asst.bubbleBorderRadius ?? 10}px !important;
         }
-        user-query {
+        user-query, .user-query-container {
           color: ${user.textColor || 'inherit'} !important;
           background-color: ${user.bubbleBackgroundColor || 'transparent'} !important;
           padding: ${user.bubblePadding ?? 8}px !important;
@@ -694,7 +697,7 @@
       `;
     }
 
-    styleEl.textContent = css;
+    if (styleEl) styleEl.textContent = css;
 
     const label = document.getElementById(`${APPID}-applied-theme-name`);
     if (label) label.textContent = activeTheme.name || 'Default';
@@ -1107,11 +1110,19 @@
 
       const observer = new MutationObserver(() => {
         applyCurrentTheme();
+        createSettingsButton();
       });
-      const targetNode = document.querySelector('title') || document.head || document.body;
+      const targetNode = document.querySelector('title') || document.head || document.body || document.documentElement;
       if (targetNode) {
         observer.observe(targetNode, { subtree: true, characterData: true, childList: true });
       }
+
+      setInterval(() => {
+        if (document.body) {
+          createSettingsButton();
+          applyCurrentTheme();
+        }
+      }, 1500);
     });
   }
 

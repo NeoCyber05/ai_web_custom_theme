@@ -19,7 +19,7 @@
 // @grant        GM.deleteValue
 // @grant        GM_setValue
 // @grant        GM_getValue
-// @run-at       document-start
+// @run-at       document-idle
 // @noframes
 // ==/UserScript==
 
@@ -464,6 +464,11 @@
     await loadConfig();
     ensureBody(() => {
       createToggleBtn();
+      setInterval(() => {
+        if (document.body) {
+          createToggleBtn();
+        }
+      }, 1500);
     });
   }
 

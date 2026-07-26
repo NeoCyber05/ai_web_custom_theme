@@ -69,22 +69,14 @@ Ensure you have a userscript manager extension installed:
 
 ---
 
-### Step 3: Install the Script
+### Step 3: Install the Script (Cài Đặt Script)
 
-#### Method A: Click the "Raw" button (Recommended)
 1. Open the script file you want to install:
    - 🚀 [AI-Theme-Custom.user.js](./AI-Theme-Custom.user.js)
    - ⚡ [AI-Prompt-Deck.user.js](./AI-Prompt-Deck.user.js)
-2. On GitHub's file viewer page, click the **`Raw`** button near the top-right of the code viewer.
-3. Tampermonkey will automatically detect the script file and open an installation tab.
-4. Click **Install** (hoặc **Cài Đặt**) to finish.
-
-#### Method B: Copy Code Manually
-If Tampermonkey does not open automatically when clicking Raw:
-1. Open the script file link above and click **`Raw`**.
-2. Press `Ctrl + A` then `Ctrl + C` to copy all code.
+2. Copy all code in the file (`Ctrl + A` -> `Ctrl + C`).
 3. Click the **Tampermonkey icon** in your browser toolbar -> Select **Create a new script...** (*Tạo script mới*).
-4. Delete any default placeholder code, paste the copied code, and press **`Ctrl + S`** to Save.
+4. Paste the code (`Ctrl + V`) and press **`Ctrl + S`** (File -> Save) to save.
 
 ---
 
