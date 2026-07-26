@@ -1,11 +1,11 @@
 // ==UserScript==
-// @name         Quick-Text-Buttons
-// @namespace    https://github.com/ai-ux-customizer-enhanced
+// @name         AI Prompt Deck
+// @namespace    https://github.com/ai-prompt-deck
 // @version      2.0.0
 // @license      MIT
-// @description  Công cụ chèn nút Prompt / Văn bản nhanh 1-click cho ChatGPT, Gemini và Claude. Hỗ trợ Đa Ngôn Ngữ (Việt/Anh), Quản lý danh mục prompt, Import/Export.
+// @description  1-Click Prompt & Text Snippet manager for ChatGPT, Gemini, and Claude. Features EN/VI multilingual support, category manager, and JSON import/export.
 // @icon         data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff9800'%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z'/%3E%3C/svg%3E
-// @author       AI UX Team
+// @author       AI Prompt Team
 // @match        https://chatgpt.com/*
 // @match        https://gemini.google.com/*
 // @match        https://claude.ai/*
@@ -19,41 +19,41 @@
 (() => {
   'use strict';
 
-  const APPID = 'qtb-script';
+  const APPID = 'ai-prompt-deck';
   const STORAGE_KEY = `${APPID}-config`;
 
   // --- i18n Dictionary ---
   const I18N = {
     vi: {
-      lang_switch: '🌐 English',
-      panel_title: '⚡ Nút Prompt Nhanh (Quick Text Buttons)',
-      add_btn: '➕ Thêm Nút Mới',
-      edit_btn: '⚙️ Quản Lý',
+      lang_switch: 'English',
+      panel_title: 'Nút Prompt Nhanh (AI Prompt Deck)',
+      add_btn: 'Thêm Nút Mới',
+      edit_btn: 'Quản Lý',
       close: 'Đóng',
       btn_label: 'Nhãn nút (Tên):',
       btn_content: 'Nội dung Prompt:',
       btn_category: 'Danh mục:',
-      save: '💾 Lưu',
+      save: 'Lưu',
       cancel: 'Hủy',
-      delete: '🗑️ Xóa',
-      import_export: '📝 Import / Export JSON',
+      delete: 'Xóa',
+      import_export: 'Import / Export JSON',
       placeholder_prompt: 'Nhập nội dung prompt bạn hay dùng...',
       inserted_toast: 'Đã chèn prompt thành công!',
       default_cat: 'Chung'
     },
     en: {
-      lang_switch: '🌐 Tiếng Việt',
-      panel_title: '⚡ Quick Text Buttons',
-      add_btn: '➕ Add New Button',
-      edit_btn: '⚙️ Manage',
+      lang_switch: 'Tiếng Việt',
+      panel_title: 'AI Prompt Deck',
+      add_btn: 'Add New Button',
+      edit_btn: 'Manage',
       close: 'Close',
       btn_label: 'Button Label:',
       btn_content: 'Prompt Content:',
       btn_category: 'Category:',
-      save: '💾 Save',
+      save: 'Save',
       cancel: 'Cancel',
-      delete: '🗑️ Delete',
-      import_export: '📝 Import / Export JSON',
+      delete: 'Delete',
+      import_export: 'Import / Export JSON',
       placeholder_prompt: 'Type your frequently used prompt here...',
       inserted_toast: 'Prompt inserted successfully!',
       default_cat: 'General'
@@ -68,10 +68,10 @@
   // --- Default Presets ---
   function getDefaultButtons() {
     return [
-      { id: 'btn-1', label: '🛠️ Fix Code Bug', content: 'Hãy kiểm tra và tìm lỗi sai trong đoạn mã nguồn dưới đây, sau đó giải thích nguyên nhân và đưa ra bản sửa lỗi tối ưu:\n\n', category: 'Coding' },
-      { id: 'btn-2', label: '📝 Summarize', content: 'Hãy tóm tắt lại nội dung dưới đây thành các ý chính ngắn gọn, súc tích và dễ hiểu:\n\n', category: 'General' },
-      { id: 'btn-3', label: '🌐 Translate EN', content: 'Please translate the following text into natural, fluent English:\n\n', category: 'Translation' },
-      { id: 'btn-4', label: '✨ Refine Writing', content: 'Hãy viết lại đoạn văn bản dưới đây theo phong cách chuyên nghiệp, trôi chảy và hấp dẫn hơn:\n\n', category: 'Writing' }
+      { id: 'btn-1', label: 'Fix Code Bug', content: 'Hãy kiểm tra và tìm lỗi sai trong đoạn mã nguồn dưới đây, sau đó giải thích nguyên nhân và đưa ra bản sửa lỗi tối ưu:\n\n', category: 'Coding' },
+      { id: 'btn-2', label: 'Summarize', content: 'Hãy tóm tắt lại nội dung dưới đây thành các ý chính ngắn gọn, súc tích và dễ hiểu:\n\n', category: 'General' },
+      { id: 'btn-3', label: 'Translate EN', content: 'Please translate the following text into natural, fluent English:\n\n', category: 'Translation' },
+      { id: 'btn-4', label: 'Refine Writing', content: 'Hãy viết lại đoạn văn bản dưới đây theo phong cách chuyên nghiệp, trôi chảy và hấp dẫn hơn:\n\n', category: 'Writing' }
     ];
   }
 
@@ -97,7 +97,7 @@
       config.language = currentLang;
       await GM.setValue(STORAGE_KEY, JSON.stringify(config));
       renderQuickBar();
-      showToast(t('save') + ' ✨');
+      showToast(t('save'));
     } catch (e) {
       console.error(`[${APPID}] Error saving config:`, e);
     }
@@ -163,7 +163,7 @@
     showToast(t('inserted_toast'));
   }
 
-  // --- Quick Bar UI (Floating Bar near input) ---
+  // --- Quick Bar UI ---
   let quickBarEl = null;
 
   function createToggleBtn() {
@@ -172,7 +172,7 @@
     const btn = document.createElement('button');
     btn.id = `${APPID}-toggle-btn`;
     btn.innerHTML = '✏️';
-    btn.title = 'Quick Text Buttons';
+    btn.title = 'AI Prompt Deck';
     btn.style.cssText = `
       position: fixed; bottom: 85px; left: 20px; z-index: 99999;
       width: 44px; height: 44px; border-radius: 50%;
@@ -247,7 +247,6 @@
 
     quickBarEl.style.display = 'block';
 
-    // Events
     document.getElementById(`${APPID}-lang-btn`).onclick = () => {
       currentLang = currentLang === 'vi' ? 'en' : 'vi';
       saveConfig();
@@ -290,7 +289,7 @@
         <div style="display:flex; flex-direction:column; gap:10px; font-size:13px;">
           <div>
             <label style="display:block; margin-bottom:4px; color:#a6adc8;">${t('btn_label')}</label>
-            <input type="text" id="${APPID}-in-label" value="${existingItem?.label || ''}" placeholder="VD: 🛠️ Fix Code Bug" style="width:100%; background:#1e1e2e; color:#fff; border:1px solid #45475a; padding:6px; border-radius:4px; box-sizing:border-box;">
+            <input type="text" id="${APPID}-in-label" value="${existingItem?.label || ''}" placeholder="Fix Code Bug" style="width:100%; background:#1e1e2e; color:#fff; border:1px solid #45475a; padding:6px; border-radius:4px; box-sizing:border-box;">
           </div>
 
           <div>
@@ -362,7 +361,7 @@
             <strong>${b.label}</strong> <span style="font-size:11px; color:#a6adc8;">(${b.category})</span>
           </div>
           <div style="display:flex; gap:6px;">
-            <button class="${APPID}-edit-item" data-idx="${idx}" style="background:#89b4fa; color:#11111b; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">Sửa</button>
+            <button class="${APPID}-edit-item" data-idx="${idx}" style="background:#89b4fa; color:#11111b; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">Edit</button>
             <button class="${APPID}-del-item" data-idx="${idx}" style="background:#f38ba8; color:#11111b; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">${t('delete')}</button>
           </div>
         </div>

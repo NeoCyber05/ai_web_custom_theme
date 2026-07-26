@@ -1,11 +1,11 @@
 // ==UserScript==
-// @name         AI-UX-Customizer-Enhanced
-// @namespace    https://github.com/ai-ux-customizer-enhanced
+// @name         AI Theme Custom
+// @namespace    https://github.com/ai-theme-custom
 // @version      2.0.0
 // @license      MIT
-// @description  Bản nâng cấp AI UX Customizer cho ChatGPT và Gemini: Tùy biến giao diện toàn diện, Hỗ trợ 2 ngôn ngữ (Việt/Anh), Nút chọn Theme có sẵn (Preset themes), Navigation Console & Message Jump List.
+// @description  Full interface customization engine for ChatGPT and Gemini: Custom themes, preset picker, EN/VI multilingual support, custom avatars, standing images, and chat navigation console.
 // @icon         data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 -960 960 960' width='24px' fill='%235985E1'%3E%3Cpath d='M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 32.5-156t88-127Q256-817 330-848.5T488-880q80 0 151 27.5t124.5 76q53.5 48.5 85 115T880-518q0 115-70 176.5T640-280h-74q-9 0-12.5 5t-3.5 11q0 12 15 34.5t15 51.5q0 50-27.5 74T480-80Zm0-400Zm-220 40q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120-160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm200 0q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120 160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17ZM480-160q9 0 14.5-5t5.5-13q0-14-15-33t-15-57q0-42 29-67t71-25h70q66 0 113-38.5T800-518q0-121-92.5-201.5T488-800q-136 0-232 93t-96 227q0 133 93.5 226.5T480-160Z'/%3E%3C/svg%3E
-// @author       AI UX Team
+// @author       AI Theme Team
 // @match        https://chatgpt.com/*
 // @match        https://gemini.google.com/*
 // @grant        GM.setValue
@@ -24,8 +24,8 @@
 (() => {
   'use strict';
 
-  const APPID = 'aiuxce';
-  const APPNAME = 'AI UX Customizer Enhanced';
+  const APPID = 'ai-theme-custom';
+  const APPNAME = 'AI Theme Custom';
   const STORAGE_KEY = `${APPID}-config`;
 
   // --- Platform Detection ---
@@ -44,16 +44,16 @@
   const CURRENT_PLATFORM = detectPlatform();
   if (!CURRENT_PLATFORM) return;
 
-  // --- i18n Dictionary (Multilingual VI / EN) ---
+  // --- i18n Dictionary ---
   const I18N = {
     vi: {
       lang_name: 'Tiếng Việt',
-      lang_switch: '🌐 English',
-      settings_title: 'AI UX Customizer Enhanced',
+      lang_switch: 'English',
+      settings_title: 'AI Theme Custom',
       applied_theme: 'Theme đang áp dụng:',
-      presets_btn: '✨ Theme Có Sẵn (Presets)',
-      theme_editor_btn: '🎨 Trình Chỉnh Sửa Theme',
-      json_editor_btn: '📝 Chỉnh Sửa JSON / Import Export',
+      presets_btn: 'Theme Có Sẵn (Presets)',
+      theme_editor_btn: 'Trình Chỉnh Sửa Theme',
+      json_editor_btn: 'Chỉnh Sửa JSON / Import Export',
       icon_size: 'Kích thước Avatar (px):',
       chat_max_width: 'Chiều rộng tối đa khung Chat (vw):',
       respect_avatar: 'Tránh ảnh đứng đè lên Avatar',
@@ -67,19 +67,19 @@
       // Theme Editor Modal
       editor_title: 'Trình Quản Lý & Chỉnh Sửa Theme',
       select_theme: 'Chọn Theme:',
-      new_theme: '➕ Theme Mới',
-      copy_theme: '📋 Nhân Bản',
-      delete_theme: '🗑️ Xóa',
+      new_theme: 'Theme Mới',
+      copy_theme: 'Nhân Bản',
+      delete_theme: 'Xóa',
       rename_theme: 'Đổi tên:',
       title_patterns: 'Regex khớp Tiêu đề Chat (Mỗi dòng 1 mẫu):',
       url_patterns: 'Regex khớp Đường dẫn URL (Mỗi dòng 1 mẫu):',
-      apply_preset_to_current: '📥 Nạp từ Theme Có Sẵn (Preset)...',
+      apply_preset_to_current: 'Nạp từ Theme Có Sẵn (Preset)...',
       
       // Actors
-      assistant_sec: '🤖 AI Assistant (Trợ Lý)',
-      user_sec: '👤 User (Người Dùng)',
-      window_sec: '🖼️ Nền Ứng Dụng (Window Background)',
-      input_sec: '⌨️ Khung Nhập Liệu (Input Area)',
+      assistant_sec: 'AI Assistant (Trợ Lý)',
+      user_sec: 'User (Người Dùng)',
+      window_sec: 'Nền Ứng Dụng (Window Background)',
+      input_sec: 'Khung Nhập Liệu (Input Area)',
       
       field_name: 'Tên hiển thị:',
       field_icon: 'Icon (URL / SVG / Base64):',
@@ -100,7 +100,7 @@
       input_text_color: 'Màu chữ khung nhập:',
       
       // Buttons
-      save: '💾 Lưu',
+      save: 'Lưu',
       cancel: 'Hủy',
       close: 'Đóng',
       apply: 'Áp dụng',
@@ -109,13 +109,13 @@
       reset: 'Khôi phục mặc định',
 
       // Presets Modal
-      preset_modal_title: '✨ Thư Viện Theme Có Sẵn (Built-in Presets)',
+      preset_modal_title: 'Thư Viện Theme Có Sẵn (Presets)',
       apply_as_default: 'Đặt làm Theme Mặc Định',
       add_as_new: 'Thêm thành Theme Mới',
       preset_applied: 'Đã áp dụng theme preset thành công!',
       
       // Jump List
-      jumplist_title: '📜 Danh Sách Tin Nhắn (Jump List)',
+      jumplist_title: 'Danh Sách Tin Nhắn (Jump List)',
       search_placeholder: 'Tìm kiếm tin nhắn (Hỗ trợ Regex)...',
       total_msgs: 'Tổng tin nhắn:',
       user_msgs: 'User:',
@@ -124,12 +124,12 @@
     },
     en: {
       lang_name: 'English',
-      lang_switch: '🌐 Tiếng Việt',
-      settings_title: 'AI UX Customizer Enhanced',
+      lang_switch: 'Tiếng Việt',
+      settings_title: 'AI Theme Custom',
       applied_theme: 'Applied Theme:',
-      presets_btn: '✨ Preset Themes',
-      theme_editor_btn: '🎨 Theme Editor',
-      json_editor_btn: '📝 JSON Editor / Import Export',
+      presets_btn: 'Preset Themes',
+      theme_editor_btn: 'Theme Editor',
+      json_editor_btn: 'JSON Editor / Import Export',
       icon_size: 'Avatar Icon Size (px):',
       chat_max_width: 'Chat Content Max Width (vw):',
       respect_avatar: 'Prevent Standing Image Overlapping Avatar',
@@ -143,19 +143,19 @@
       // Theme Editor Modal
       editor_title: 'Theme Manager & Editor',
       select_theme: 'Select Theme:',
-      new_theme: '➕ New Theme',
-      copy_theme: '📋 Duplicate',
-      delete_theme: '🗑️ Delete',
+      new_theme: 'New Theme',
+      copy_theme: 'Duplicate',
+      delete_theme: 'Delete',
       rename_theme: 'Rename:',
       title_patterns: 'Chat Title Matching Regex (One per line):',
       url_patterns: 'URL Matching Regex (One per line):',
-      apply_preset_to_current: '📥 Load from Preset Theme...',
+      apply_preset_to_current: 'Load from Preset Theme...',
       
       // Actors
-      assistant_sec: '🤖 AI Assistant',
-      user_sec: '👤 User',
-      window_sec: '🖼️ Window Background',
-      input_sec: '⌨️ Input Area',
+      assistant_sec: 'AI Assistant',
+      user_sec: 'User',
+      window_sec: 'Window Background',
+      input_sec: 'Input Area',
       
       field_name: 'Display Name:',
       field_icon: 'Icon (URL / SVG / Base64):',
@@ -176,7 +176,7 @@
       input_text_color: 'Input Text Color:',
       
       // Buttons
-      save: '💾 Save',
+      save: 'Save',
       cancel: 'Cancel',
       close: 'Close',
       apply: 'Apply',
@@ -185,13 +185,13 @@
       reset: 'Reset Defaults',
 
       // Presets Modal
-      preset_modal_title: '✨ Built-in Preset Themes Library',
+      preset_modal_title: 'Built-in Preset Themes Library',
       apply_as_default: 'Apply to Default Theme',
       add_as_new: 'Add as New Theme',
       preset_applied: 'Preset theme successfully applied!',
       
       // Jump List
-      jumplist_title: '📜 Message Jump List',
+      jumplist_title: 'Message Jump List',
       search_placeholder: 'Search messages (Regex supported)...',
       total_msgs: 'Total Messages:',
       user_msgs: 'User:',
@@ -200,7 +200,7 @@
     }
   };
 
-  let currentLang = 'vi'; // Default language: Vietnamese
+  let currentLang = 'vi';
 
   function t(key) {
     return I18N[currentLang]?.[key] || I18N['en']?.[key] || key;
@@ -210,7 +210,7 @@
   const BUILTIN_PRESETS = [
     {
       id: 'preset-cyberpunk-neon',
-      name: 'Cyberpunk Neon ⚡',
+      name: 'Cyberpunk Neon',
       matchPatterns: ['/\\[cyberpunk\\]/i'],
       urlPatterns: [],
       assistant: {
@@ -238,7 +238,7 @@
     },
     {
       id: 'preset-sakura-blossom',
-      name: 'Sakura Blossom 🌸',
+      name: 'Sakura Blossom',
       matchPatterns: ['/\\[sakura\\]/i'],
       urlPatterns: [],
       assistant: {
@@ -266,7 +266,7 @@
     },
     {
       id: 'preset-emerald-forest',
-      name: 'Emerald Forest 🌲',
+      name: 'Emerald Forest',
       matchPatterns: ['/\\[emerald\\]/i'],
       urlPatterns: [],
       assistant: {
@@ -294,7 +294,7 @@
     },
     {
       id: 'preset-sunset-vaporwave',
-      name: 'Sunset Vaporwave 🌅',
+      name: 'Sunset Vaporwave',
       matchPatterns: ['/\\[sunset\\]/i'],
       urlPatterns: [],
       assistant: {
@@ -322,7 +322,7 @@
     },
     {
       id: 'preset-deep-space',
-      name: 'Deep Space Neon 🌌',
+      name: 'Deep Space Neon',
       matchPatterns: ['/\\[space\\]/i'],
       urlPatterns: [],
       assistant: {
@@ -350,7 +350,7 @@
     },
     {
       id: 'preset-minimalist-slate',
-      name: 'Minimalist Slate 📓',
+      name: 'Minimalist Slate',
       matchPatterns: ['/\\[slate\\]/i'],
       urlPatterns: [],
       assistant: {
@@ -416,13 +416,13 @@
       config.language = currentLang;
       await GM.setValue(STORAGE_KEY, JSON.stringify(config));
       applyCurrentTheme();
-      showToast(t('save') + ' ✨');
+      showToast(t('save'));
     } catch (e) {
       console.error(`[${APPID}] Error saving config:`, e);
     }
   }
 
-  // --- Toast Notification System ---
+  // --- Toast Notification ---
   function showToast(msg) {
     let toast = document.getElementById(`${APPID}-toast`);
     if (!toast) {
@@ -443,7 +443,7 @@
     setTimeout(() => { toast.style.opacity = '0'; }, 2500);
   }
 
-  // --- Theme Engine & CSS Injection ---
+  // --- Theme Engine ---
   let styleEl = null;
 
   function ensureStyleElement() {
@@ -458,7 +458,6 @@
     const pageTitle = document.title || '';
     const pageUrl = window.location.href;
 
-    // Check URL patterns first
     for (const theme of config.themeSets) {
       for (const patternStr of (theme.urlPatterns || [])) {
         try {
@@ -469,7 +468,6 @@
       }
     }
 
-    // Check Title patterns
     for (const theme of config.themeSets) {
       for (const patternStr of (theme.matchPatterns || [])) {
         try {
@@ -496,11 +494,11 @@
 
     let css = `
       :root {
-        --aiuxce-icon-size: ${opts.icon_size || 64}px;
-        --aiuxce-asst-text: ${asst.textColor || 'inherit'};
-        --aiuxce-asst-bg: ${asst.bubbleBackgroundColor || 'transparent'};
-        --aiuxce-user-text: ${user.textColor || 'inherit'};
-        --aiuxce-user-bg: ${user.bubbleBackgroundColor || 'transparent'};
+        --aitc-icon-size: ${opts.icon_size || 64}px;
+        --aitc-asst-text: ${asst.textColor || 'inherit'};
+        --aitc-asst-bg: ${asst.bubbleBackgroundColor || 'transparent'};
+        --aitc-user-text: ${user.textColor || 'inherit'};
+        --aitc-user-bg: ${user.bubbleBackgroundColor || 'transparent'};
       }
     `;
 
@@ -533,9 +531,7 @@
       css += `#prompt-textarea, [contenteditable="true"], textarea { color: ${inp.textColor} !important; }`;
     }
 
-    // Chat Bubbles Styling (ChatGPT / Gemini)
     if (!isGemini) {
-      // ChatGPT
       css += `
         [data-message-author-role="assistant"] {
           color: ${asst.textColor || 'inherit'} !important;
@@ -553,7 +549,6 @@
         }
       `;
     } else {
-      // Gemini
       css += `
         model-response {
           color: ${asst.textColor || 'inherit'} !important;
@@ -572,12 +567,11 @@
 
     styleEl.textContent = css;
 
-    // Update Applied Theme text in panel if present
     const label = document.getElementById(`${APPID}-applied-theme-name`);
     if (label) label.textContent = activeTheme.name || 'Default';
   }
 
-  // --- UI Components: Settings Panel ---
+  // --- Settings Panel ---
   let settingsPanelEl = null;
 
   function createSettingsButton() {
@@ -586,7 +580,7 @@
     const btn = document.createElement('button');
     btn.id = `${APPID}-settings-btn`;
     btn.innerHTML = '🎨';
-    btn.title = 'AI UX Customizer Enhanced';
+    btn.title = 'AI Theme Custom';
     btn.style.cssText = `
       position: fixed; bottom: 85px; right: 20px; z-index: 99999;
       width: 44px; height: 44px; border-radius: 50%;
@@ -594,7 +588,7 @@
       color: #fff; font-size: 20px; border: none; cursor: pointer;
       box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
       display: flex; align-items: center; justify-content: center;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: transform 0.2s;
     `;
     btn.onmouseover = () => { btn.style.transform = 'scale(1.1)'; };
     btn.onmouseout = () => { btn.style.transform = 'scale(1)'; };
@@ -662,14 +656,13 @@
 
         <div>
           <label style="display:block; margin-bottom:4px; color:#a6adc8;">${t('chat_max_width')}</label>
-          <input type="number" id="${APPID}-opt-max-width" value="${config.options.chat_content_max_width || ''}" placeholder="Mặc định (Auto)" style="width:100%; background:#1e1e2e; color:#fff; border:1px solid #45475a; padding:6px; border-radius:4px;">
+          <input type="number" id="${APPID}-opt-max-width" value="${config.options.chat_content_max_width || ''}" placeholder="Auto" style="width:100%; background:#1e1e2e; color:#fff; border:1px solid #45475a; padding:6px; border-radius:4px;">
         </div>
       </div>
     `;
 
     settingsPanelEl.style.display = 'block';
 
-    // Events
     document.getElementById(`${APPID}-lang-btn`).onclick = () => {
       currentLang = currentLang === 'vi' ? 'en' : 'vi';
       saveConfig();
@@ -762,7 +755,7 @@
     });
   }
 
-  // --- Theme Editor Modal ---
+  // --- Theme Editor ---
   function openThemeEditorModal() {
     let modal = document.getElementById(`${APPID}-editor-modal`);
     if (!modal) {
@@ -775,7 +768,7 @@
       document.body.appendChild(modal);
     }
 
-    let activeThemeIndex = -1; // -1 means defaultSet
+    let activeThemeIndex = -1;
 
     function renderEditor() {
       const isDefault = activeThemeIndex === -1;
@@ -814,7 +807,6 @@
           ` : ''}
 
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px;">
-            <!-- Assistant Config -->
             <div style="background:#1e1e2e; padding:12px; border-radius:8px;">
               <h4 style="margin:0 0 10px 0; color:#89b4fa;">${t('assistant_sec')}</h4>
               
@@ -828,7 +820,6 @@
               <input type="text" id="${APPID}-asst-bg" value="${targetTheme.assistant?.bubbleBackgroundColor || ''}" placeholder="rgba(20,10,35,0.85)" style="width:100%; background:#313244; color:#fff; border:1px solid #45475a; padding:5px; border-radius:4px;">
             </div>
 
-            <!-- User Config -->
             <div style="background:#1e1e2e; padding:12px; border-radius:8px;">
               <h4 style="margin:0 0 10px 0; color:#f5c2e7;">${t('user_sec')}</h4>
               
@@ -946,17 +937,17 @@
         saveConfig();
         modal.remove();
       } catch (e) {
-        alert('Lỗi cú pháp JSON: ' + e.message);
+        alert('Syntax Error JSON: ' + e.message);
       }
     };
   }
 
-  // --- Keyboard Shortcuts & Initialization ---
+  // --- Keyboard Shortcuts & Init ---
   function setupKeyboardShortcuts() {
     window.addEventListener('keydown', (e) => {
       if (e.altKey && e.key.toLowerCase() === 'j') {
         e.preventDefault();
-        showToast('Jump List Shortcut (Alt+J)');
+        showToast('Jump List (Alt+J)');
       }
     });
   }
@@ -975,7 +966,6 @@
 
     setupKeyboardShortcuts();
 
-    // Listen for Title / URL mutations
     const observer = new MutationObserver(() => {
       applyCurrentTheme();
     });
