@@ -1,4 +1,4 @@
-# AI UX Customizer Suite (2 Independent Userscripts) 🚀
+# AI Web UX Customizer 
 
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![userscript](https://img.shields.io/badge/userscript-Tampermonkey-blueviolet)
