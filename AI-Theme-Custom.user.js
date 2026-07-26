@@ -1,20 +1,22 @@
 // ==UserScript==
 // @name         AI Theme Custom
 // @namespace    https://github.com/ai-theme-custom
-// @version      2.0.0
+// @version      2.0.1
 // @license      MIT
 // @description  Full interface customization engine for ChatGPT and Gemini: Custom themes, preset picker, EN/VI multilingual support, custom avatars, standing images, and chat navigation console.
 // @icon         data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 -960 960 960' width='24px' fill='%235985E1'%3E%3Cpath d='M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 32.5-156t88-127Q256-817 330-848.5T488-880q80 0 151 27.5t124.5 76q53.5 48.5 85 115T880-518q0 115-70 176.5T640-280h-74q-9 0-12.5 5t-3.5 11q0 12 15 34.5t15 51.5q0 50-27.5 74T480-80Zm0-400Zm-220 40q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120-160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm200 0q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120 160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17ZM480-160q9 0 14.5-5t5.5-13q0-14-15-33t-15-57q0-42 29-67t71-25h70q66 0 113-38.5T800-518q0-121-92.5-201.5T488-800q-136 0-232 93t-96 227q0 133 93.5 226.5T480-160Z'/%3E%3C/svg%3E
 // @author       AI Theme Team
 // @match        https://chatgpt.com/*
+// @match        https://chat.openai.com/*
 // @match        https://gemini.google.com/*
+// @include      *://chatgpt.com/*
+// @include      *://chat.openai.com/*
+// @include      *://gemini.google.com/*
 // @grant        GM.setValue
 // @grant        GM.getValue
 // @grant        GM.deleteValue
-// @grant        GM.listValues
-// @grant        GM_addValueChangeListener
-// @grant        GM_removeValueChangeListener
-// @grant        GM_xmlhttpRequest
+// @grant        GM_setValue
+// @grant        GM_getValue
 // @grant        unsafeWindow
 // @connect      *
 // @run-at       document-start
@@ -375,6 +377,118 @@
       },
       window: { backgroundColor: '#0f172a', backgroundImageUrl: null, backgroundSize: 'cover', backgroundPosition: 'center center', backgroundRepeat: 'no-repeat' },
       inputArea: { backgroundColor: '#1e293b', textColor: '#f8fafc' }
+    },
+    {
+      id: 'preset-golden-luxe',
+      name: 'Golden Amber Luxe ⚜️',
+      matchPatterns: ['/\\[gold\\]/i', '/\\[luxe\\]/i'],
+      urlPatterns: [],
+      assistant: {
+        name: 'Royal Oracle',
+        icon: "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffd700'><path d='M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z'/></svg>",
+        textColor: '#ffe082',
+        font: "'Playfair Display', serif",
+        bubbleBackgroundColor: 'rgba(38, 28, 12, 0.88)',
+        bubblePadding: 12,
+        bubbleBorderRadius: 14,
+        bubbleMaxWidth: 90
+      },
+      user: {
+        name: 'Sovereign',
+        icon: "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffb300'><path d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3a3 3 0 1 1-3 3 3 3 0 0 1 3-3zm0 14.2a7.2 7.2 0 0 1-6-3.2c.03-2 4-3.1 6-3.1s5.97 1.1 6 3.1a7.2 7.2 0 0 1-6 3.2z'/></svg>",
+        textColor: '#ffecb3',
+        font: "'Playfair Display', serif",
+        bubbleBackgroundColor: 'rgba(48, 36, 16, 0.88)',
+        bubblePadding: 12,
+        bubbleBorderRadius: 14,
+        bubbleMaxWidth: 80
+      },
+      window: { backgroundColor: '#0f0d0e', backgroundImageUrl: null, backgroundSize: 'cover', backgroundPosition: 'center center', backgroundRepeat: 'no-repeat' },
+      inputArea: { backgroundColor: '#1c1714', textColor: '#fff8e1' }
+    },
+    {
+      id: 'preset-nordic-frost',
+      name: 'Nordic Frost Ice ❄️',
+      matchPatterns: ['/\\[frost\\]/i', '/\\[ice\\]/i'],
+      urlPatterns: [],
+      assistant: {
+        name: 'Frost AI',
+        icon: "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2v20M2 12h20M5 5l14 14M19 5L5 19'/></svg>",
+        textColor: '#bae6fd',
+        font: "'Inter', sans-serif",
+        bubbleBackgroundColor: 'rgba(15, 32, 57, 0.85)',
+        bubblePadding: 10,
+        bubbleBorderRadius: 12,
+        bubbleMaxWidth: 90
+      },
+      user: {
+        name: 'Explorer',
+        icon: "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237dd3fc'><path d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3a3 3 0 1 1-3 3 3 3 0 0 1 3-3zm0 14.2a7.2 7.2 0 0 1-6-3.2c.03-2 4-3.1 6-3.1s5.97 1.1 6 3.1a7.2 7.2 0 0 1-6 3.2z'/></svg>",
+        textColor: '#e0f2fe',
+        font: "'Inter', sans-serif",
+        bubbleBackgroundColor: 'rgba(20, 42, 75, 0.85)',
+        bubblePadding: 10,
+        bubbleBorderRadius: 12,
+        bubbleMaxWidth: 80
+      },
+      window: { backgroundColor: '#070f1e', backgroundImageUrl: null, backgroundSize: 'cover', backgroundPosition: 'center center', backgroundRepeat: 'no-repeat' },
+      inputArea: { backgroundColor: '#0f1d33', textColor: '#f0f9ff' }
+    },
+    {
+      id: 'preset-dracula-gothic',
+      name: 'Dracula Gothic 🧛',
+      matchPatterns: ['/\\[dracula\\]/i', '/\\[gothic\\]/i'],
+      urlPatterns: [],
+      assistant: {
+        name: 'Vampire Lord',
+        icon: "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23cba6f7'><path d='M12 2a10 10 0 0 0-10 10c0 5.5 4.5 10 10 10s10-4.5 10-10A10 10 0 0 0 12 2zm1 14.5h-2v-2h2v2zm0-4h-2v-5h2v5z'/></svg>",
+        textColor: '#f5c2e7',
+        font: "'Fira Code', monospace",
+        bubbleBackgroundColor: 'rgba(42, 22, 58, 0.88)',
+        bubblePadding: 11,
+        bubbleBorderRadius: 12,
+        bubbleMaxWidth: 90
+      },
+      user: {
+        name: 'Hunter',
+        icon: "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f38ba8'><path d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3a3 3 0 1 1-3 3 3 3 0 0 1 3-3zm0 14.2a7.2 7.2 0 0 1-6-3.2c.03-2 4-3.1 6-3.1s5.97 1.1 6 3.1a7.2 7.2 0 0 1-6 3.2z'/></svg>",
+        textColor: '#f2cdcd',
+        font: "'Fira Code', monospace",
+        bubbleBackgroundColor: 'rgba(52, 25, 68, 0.88)',
+        bubblePadding: 11,
+        bubbleBorderRadius: 12,
+        bubbleMaxWidth: 80
+      },
+      window: { backgroundColor: '#110c1d', backgroundImageUrl: null, backgroundSize: 'cover', backgroundPosition: 'center center', backgroundRepeat: 'no-repeat' },
+      inputArea: { backgroundColor: '#1e162e', textColor: '#cdd6f4' }
+    },
+    {
+      id: 'preset-tokyo-midnight',
+      name: 'Tokyo Midnight 🗼',
+      matchPatterns: ['/\\[tokyo\\]/i', '/\\[midnight\\]/i'],
+      urlPatterns: [],
+      assistant: {
+        name: 'Neon AI',
+        icon: "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2306b6d4'><path d='M12 2L2 7l10 5 10-5-10-5zm0 9l-10-5v10l10 5 10-5V6l-10 5z'/></svg>",
+        textColor: '#67e8f9',
+        font: "'Outfit', sans-serif",
+        bubbleBackgroundColor: 'rgba(18, 22, 45, 0.88)',
+        bubblePadding: 10,
+        bubbleBorderRadius: 14,
+        bubbleMaxWidth: 90
+      },
+      user: {
+        name: 'Cyber Citizen',
+        icon: "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f43f5e'><path d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3a3 3 0 1 1-3 3 3 3 0 0 1 3-3zm0 14.2a7.2 7.2 0 0 1-6-3.2c.03-2 4-3.1 6-3.1s5.97 1.1 6 3.1a7.2 7.2 0 0 1-6 3.2z'/></svg>",
+        textColor: '#fda4af',
+        font: "'Outfit', sans-serif",
+        bubbleBackgroundColor: 'rgba(35, 18, 42, 0.88)',
+        bubblePadding: 10,
+        bubbleBorderRadius: 14,
+        bubbleMaxWidth: 80
+      },
+      window: { backgroundColor: '#090c15', backgroundImageUrl: null, backgroundSize: 'cover', backgroundPosition: 'center center', backgroundRepeat: 'no-repeat' },
+      inputArea: { backgroundColor: '#131828', textColor: '#e0e7ff' }
     }
   ];
 
@@ -401,20 +515,35 @@
 
   async function loadConfig() {
     try {
-      const stored = await GM.getValue(STORAGE_KEY, null);
+      let stored = null;
+      if (typeof GM !== 'undefined' && GM.getValue) {
+        stored = await GM.getValue(STORAGE_KEY, null);
+      } else if (typeof GM_getValue !== 'undefined') {
+        stored = GM_getValue(STORAGE_KEY, null);
+      } else {
+        stored = localStorage.getItem(STORAGE_KEY);
+      }
       if (stored) {
-        config = Object.assign(getDefaultConfig(), JSON.parse(stored));
+        const parsed = typeof stored === 'string' ? JSON.parse(stored) : stored;
+        config = Object.assign(getDefaultConfig(), parsed);
         if (config.language) currentLang = config.language;
       }
     } catch (e) {
-      console.error(`[${APPID}] Error loading config:`, e);
+      console.warn(`[${APPID}] Error loading config:`, e);
     }
   }
 
   async function saveConfig() {
     try {
       config.language = currentLang;
-      await GM.setValue(STORAGE_KEY, JSON.stringify(config));
+      const str = JSON.stringify(config);
+      if (typeof GM !== 'undefined' && GM.setValue) {
+        await GM.setValue(STORAGE_KEY, str);
+      } else if (typeof GM_setValue !== 'undefined') {
+        GM_setValue(STORAGE_KEY, str);
+      } else {
+        localStorage.setItem(STORAGE_KEY, str);
+      }
       applyCurrentTheme();
       showToast(t('save'));
     } catch (e) {
@@ -432,7 +561,7 @@
         position: fixed; bottom: 20px; right: 20px;
         background: rgba(18, 18, 24, 0.92); color: #fff;
         padding: 10px 18px; border-radius: 8px; font-size: 14px;
-        border: 1px solid rgba(255,255,255,0.15); z-index: 100000;
+        border: 1px solid rgba(255,255,255,0.15); z-index: 2147483647;
         box-shadow: 0 4px 14px rgba(0,0,0,0.4); backdrop-filter: blur(8px);
         transition: opacity 0.3s ease; opacity: 0; pointer-events: none;
       `;
@@ -582,7 +711,7 @@
     btn.innerHTML = '🎨';
     btn.title = 'AI Theme Custom';
     btn.style.cssText = `
-      position: fixed; bottom: 85px; right: 20px; z-index: 99999;
+      position: fixed; bottom: 85px; right: 20px; z-index: 2147483647;
       width: 44px; height: 44px; border-radius: 50%;
       background: linear-gradient(135deg, #6366f1, #8b5cf6);
       color: #fff; font-size: 20px; border: none; cursor: pointer;
@@ -610,7 +739,7 @@
       settingsPanelEl = document.createElement('div');
       settingsPanelEl.id = `${APPID}-settings-panel`;
       settingsPanelEl.style.cssText = `
-        position: fixed; bottom: 135px; right: 20px; z-index: 99999;
+        position: fixed; bottom: 135px; right: 20px; z-index: 2147483647;
         width: 320px; max-height: 80vh; overflow-y: auto;
         background: #181825; color: #cdd6f4; border-radius: 12px;
         padding: 16px; border: 1px solid rgba(255,255,255,0.12);
@@ -952,24 +1081,38 @@
     });
   }
 
+  function ensureBody(callback) {
+    if (document.body) {
+      callback();
+    } else {
+      const interval = setInterval(() => {
+        if (document.body) {
+          clearInterval(interval);
+          callback();
+        }
+      }, 50);
+      document.addEventListener('DOMContentLoaded', () => {
+        clearInterval(interval);
+        if (document.body) callback();
+      }, { once: true });
+    }
+  }
+
   async function init() {
     await loadConfig();
-    applyCurrentTheme();
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
-        createSettingsButton();
-      });
-    } else {
-      createSettingsButton();
-    }
-
-    setupKeyboardShortcuts();
-
-    const observer = new MutationObserver(() => {
+    ensureBody(() => {
       applyCurrentTheme();
+      createSettingsButton();
+      setupKeyboardShortcuts();
+
+      const observer = new MutationObserver(() => {
+        applyCurrentTheme();
+      });
+      const targetNode = document.querySelector('title') || document.head || document.body;
+      if (targetNode) {
+        observer.observe(targetNode, { subtree: true, characterData: true, childList: true });
+      }
     });
-    observer.observe(document.querySelector('title') || document.head, { subtree: true, characterData: true, childList: true });
   }
 
   init();

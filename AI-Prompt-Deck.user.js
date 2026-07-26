@@ -1,17 +1,24 @@
 // ==UserScript==
 // @name         AI Prompt Deck
 // @namespace    https://github.com/ai-prompt-deck
-// @version      2.0.0
+// @version      2.0.1
 // @license      MIT
 // @description  1-Click Prompt & Text Snippet manager for ChatGPT, Gemini, and Claude. Features EN/VI multilingual support, category manager, and JSON import/export.
 // @icon         data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff9800'%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z'/%3E%3C/svg%3E
 // @author       AI Prompt Team
 // @match        https://chatgpt.com/*
+// @match        https://chat.openai.com/*
 // @match        https://gemini.google.com/*
 // @match        https://claude.ai/*
+// @include      *://chatgpt.com/*
+// @include      *://chat.openai.com/*
+// @include      *://gemini.google.com/*
+// @include      *://claude.ai/*
 // @grant        GM.setValue
 // @grant        GM.getValue
 // @grant        GM.deleteValue
+// @grant        GM_setValue
+// @grant        GM_getValue
 // @run-at       document-start
 // @noframes
 // ==/UserScript==
@@ -82,20 +89,35 @@
 
   async function loadConfig() {
     try {
-      const stored = await GM.getValue(STORAGE_KEY, null);
+      let stored = null;
+      if (typeof GM !== 'undefined' && GM.getValue) {
+        stored = await GM.getValue(STORAGE_KEY, null);
+      } else if (typeof GM_getValue !== 'undefined') {
+        stored = GM_getValue(STORAGE_KEY, null);
+      } else {
+        stored = localStorage.getItem(STORAGE_KEY);
+      }
       if (stored) {
-        config = Object.assign({ language: 'vi', buttons: getDefaultButtons() }, JSON.parse(stored));
+        const parsed = typeof stored === 'string' ? JSON.parse(stored) : stored;
+        config = Object.assign({ language: 'vi', buttons: getDefaultButtons() }, parsed);
         if (config.language) currentLang = config.language;
       }
     } catch (e) {
-      console.error(`[${APPID}] Error loading config:`, e);
+      console.warn(`[${APPID}] Error loading config:`, e);
     }
   }
 
   async function saveConfig() {
     try {
       config.language = currentLang;
-      await GM.setValue(STORAGE_KEY, JSON.stringify(config));
+      const str = JSON.stringify(config);
+      if (typeof GM !== 'undefined' && GM.setValue) {
+        await GM.setValue(STORAGE_KEY, str);
+      } else if (typeof GM_setValue !== 'undefined') {
+        GM_setValue(STORAGE_KEY, str);
+      } else {
+        localStorage.setItem(STORAGE_KEY, str);
+      }
       renderQuickBar();
       showToast(t('save'));
     } catch (e) {
@@ -113,7 +135,7 @@
         position: fixed; bottom: 20px; left: 20px;
         background: rgba(24, 24, 37, 0.92); color: #fff;
         padding: 8px 16px; border-radius: 8px; font-size: 13px;
-        border: 1px solid rgba(255,152,0,0.3); z-index: 100000;
+        border: 1px solid rgba(255,152,0,0.3); z-index: 2147483647;
         box-shadow: 0 4px 14px rgba(0,0,0,0.4); backdrop-filter: blur(8px);
         transition: opacity 0.3s ease; opacity: 0; pointer-events: none;
       `;
@@ -130,7 +152,9 @@
       '#prompt-textarea',
       'textarea',
       '[contenteditable="true"]',
-      'div[role="textbox"]'
+      'div[role="textbox"]',
+      'p[data-placeholder]',
+      'div.ProseMirror'
     ];
 
     let targetEl = null;
@@ -157,7 +181,23 @@
       targetEl.selectionStart = targetEl.selectionEnd = start + text.length;
       targetEl.dispatchEvent(new Event('input', { bubbles: true }));
     } else if (targetEl.isContentEditable) {
-      document.execCommand('insertText', false, text);
+      try {
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+          const range = selection.getRangeAt(0);
+          range.deleteContents();
+          const textNode = document.createTextNode(text);
+          range.insertNode(textNode);
+          range.collapse(false);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        } else {
+          targetEl.innerText += text;
+        }
+      } catch (e) {
+        targetEl.innerText += text;
+      }
+      targetEl.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: text }));
     }
 
     showToast(t('inserted_toast'));
@@ -174,7 +214,7 @@
     btn.innerHTML = '✏️';
     btn.title = 'AI Prompt Deck';
     btn.style.cssText = `
-      position: fixed; bottom: 85px; left: 20px; z-index: 99999;
+      position: fixed; bottom: 85px; left: 20px; z-index: 2147483647;
       width: 44px; height: 44px; border-radius: 50%;
       background: linear-gradient(135deg, #ff9800, #f57c00);
       color: #fff; font-size: 20px; border: none; cursor: pointer;
@@ -202,7 +242,7 @@
       quickBarEl = document.createElement('div');
       quickBarEl.id = `${APPID}-quick-bar`;
       quickBarEl.style.cssText = `
-        position: fixed; bottom: 135px; left: 20px; z-index: 99999;
+        position: fixed; bottom: 135px; left: 20px; z-index: 2147483647;
         width: 320px; max-height: 75vh; overflow-y: auto;
         background: #181825; color: #cdd6f4; border-radius: 12px;
         padding: 14px; border: 1px solid rgba(255,152,0,0.3);
@@ -273,7 +313,7 @@
       modal = document.createElement('div');
       modal.id = `${APPID}-edit-modal`;
       modal.style.cssText = `
-        position: fixed; inset:0; z-index:100001; background:rgba(0,0,0,0.7);
+        position: fixed; inset:0; z-index:2147483647; background:rgba(0,0,0,0.7);
         display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px);
       `;
       document.body.appendChild(modal);
@@ -348,7 +388,7 @@
       modal = document.createElement('div');
       modal.id = `${APPID}-manage-modal`;
       modal.style.cssText = `
-        position: fixed; inset:0; z-index:100001; background:rgba(0,0,0,0.7);
+        position: fixed; inset:0; z-index:2147483647; background:rgba(0,0,0,0.7);
         display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px);
       `;
       document.body.appendChild(modal);
@@ -402,14 +442,29 @@
     renderList();
   }
 
+  function ensureBody(callback) {
+    if (document.body) {
+      callback();
+    } else {
+      const interval = setInterval(() => {
+        if (document.body) {
+          clearInterval(interval);
+          callback();
+        }
+      }, 50);
+      document.addEventListener('DOMContentLoaded', () => {
+        clearInterval(interval);
+        if (document.body) callback();
+      }, { once: true });
+    }
+  }
+
   // --- Init ---
   async function init() {
     await loadConfig();
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', createToggleBtn);
-    } else {
+    ensureBody(() => {
       createToggleBtn();
-    }
+    });
   }
 
   init();

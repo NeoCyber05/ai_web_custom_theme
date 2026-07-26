@@ -240,6 +240,162 @@
         "backgroundColor": "#1e293b",
         "textColor": "#f8fafc"
       }
+    },
+    {
+      "id": "preset-golden-luxe",
+      "name": "Golden Amber Luxe ⚜️",
+      "matchPatterns": ["/\\[gold\\]/i", "/\\[luxe\\]/i"],
+      "urlPatterns": [],
+      "assistant": {
+        "name": "Royal Oracle",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffd700'><path d='M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z'/></svg>",
+        "textColor": "#ffe082",
+        "font": "'Playfair Display', serif",
+        "bubbleBackgroundColor": "rgba(38, 28, 12, 0.88)",
+        "bubblePadding": 12,
+        "bubbleBorderRadius": 14,
+        "bubbleMaxWidth": 90,
+        "standingImageUrl": null
+      },
+      "user": {
+        "name": "Sovereign",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffb300'><path d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3a3 3 0 1 1-3 3 3 3 0 0 1 3-3zm0 14.2a7.2 7.2 0 0 1-6-3.2c.03-2 4-3.1 6-3.1s5.97 1.1 6 3.1a7.2 7.2 0 0 1-6 3.2z'/></svg>",
+        "textColor": "#ffecb3",
+        "font": "'Playfair Display', serif",
+        "bubbleBackgroundColor": "rgba(48, 36, 16, 0.88)",
+        "bubblePadding": 12,
+        "bubbleBorderRadius": 14,
+        "bubbleMaxWidth": 80,
+        "standingImageUrl": null
+      },
+      "window": {
+        "backgroundColor": "#0f0d0e",
+        "backgroundImageUrl": null,
+        "backgroundSize": "cover",
+        "backgroundPosition": "center center",
+        "backgroundRepeat": "no-repeat"
+      },
+      "inputArea": {
+        "backgroundColor": "#1c1714",
+        "textColor": "#fff8e1"
+      }
+    },
+    {
+      "id": "preset-nordic-frost",
+      "name": "Nordic Frost Ice ❄️",
+      "matchPatterns": ["/\\[frost\\]/i", "/\\[ice\\]/i"],
+      "urlPatterns": [],
+      "assistant": {
+        "name": "Frost AI",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2v20M2 12h20M5 5l14 14M19 5L5 19'/></svg>",
+        "textColor": "#bae6fd",
+        "font": "'Inter', sans-serif",
+        "bubbleBackgroundColor": "rgba(15, 32, 57, 0.85)",
+        "bubblePadding": 10,
+        "bubbleBorderRadius": 12,
+        "bubbleMaxWidth": 90,
+        "standingImageUrl": null
+      },
+      "user": {
+        "name": "Explorer",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237dd3fc'><path d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3a3 3 0 1 1-3 3 3 3 0 0 1 3-3zm0 14.2a7.2 7.2 0 0 1-6-3.2c.03-2 4-3.1 6-3.1s5.97 1.1 6 3.1a7.2 7.2 0 0 1-6 3.2z'/></svg>",
+        "textColor": "#e0f2fe",
+        "font": "'Inter', sans-serif",
+        "bubbleBackgroundColor": "rgba(20, 42, 75, 0.85)",
+        "bubblePadding": 10,
+        "bubbleBorderRadius": 12,
+        "bubbleMaxWidth": 80,
+        "standingImageUrl": null
+      },
+      "window": {
+        "backgroundColor": "#070f1e",
+        "backgroundImageUrl": null,
+        "backgroundSize": "cover",
+        "backgroundPosition": "center center",
+        "backgroundRepeat": "no-repeat"
+      },
+      "inputArea": {
+        "backgroundColor": "#0f1d33",
+        "textColor": "#f0f9ff"
+      }
+    },
+    {
+      "id": "preset-dracula-gothic",
+      "name": "Dracula Gothic 🧛",
+      "matchPatterns": ["/\\[dracula\\]/i", "/\\[gothic\\]/i"],
+      "urlPatterns": [],
+      "assistant": {
+        "name": "Vampire Lord",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23cba6f7'><path d='M12 2a10 10 0 0 0-10 10c0 5.5 4.5 10 10 10s10-4.5 10-10A10 10 0 0 0 12 2zm1 14.5h-2v-2h2v2zm0-4h-2v-5h2v5z'/></svg>",
+        "textColor": "#f5c2e7",
+        "font": "'Fira Code', monospace",
+        "bubbleBackgroundColor": "rgba(42, 22, 58, 0.88)",
+        "bubblePadding": 11,
+        "bubbleBorderRadius": 12,
+        "bubbleMaxWidth": 90,
+        "standingImageUrl": null
+      },
+      "user": {
+        "name": "Hunter",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f38ba8'><path d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3a3 3 0 1 1-3 3 3 3 0 0 1 3-3zm0 14.2a7.2 7.2 0 0 1-6-3.2c.03-2 4-3.1 6-3.1s5.97 1.1 6 3.1a7.2 7.2 0 0 1-6 3.2z'/></svg>",
+        "textColor": "#f2cdcd",
+        "font": "'Fira Code', monospace",
+        "bubbleBackgroundColor": "rgba(52, 25, 68, 0.88)",
+        "bubblePadding": 11,
+        "bubbleBorderRadius": 12,
+        "bubbleMaxWidth": 80,
+        "standingImageUrl": null
+      },
+      "window": {
+        "backgroundColor": "#110c1d",
+        "backgroundImageUrl": null,
+        "backgroundSize": "cover",
+        "backgroundPosition": "center center",
+        "backgroundRepeat": "no-repeat"
+      },
+      "inputArea": {
+        "backgroundColor": "#1e162e",
+        "textColor": "#cdd6f4"
+      }
+    },
+    {
+      "id": "preset-tokyo-midnight",
+      "name": "Tokyo Midnight 🗼",
+      "matchPatterns": ["/\\[tokyo\\]/i", "/\\[midnight\\]/i"],
+      "urlPatterns": [],
+      "assistant": {
+        "name": "Neon AI",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2306b6d4'><path d='M12 2L2 7l10 5 10-5-10-5zm0 9l-10-5v10l10 5 10-5V6l-10 5z'/></svg>",
+        "textColor": "#67e8f9",
+        "font": "'Outfit', sans-serif",
+        "bubbleBackgroundColor": "rgba(18, 22, 45, 0.88)",
+        "bubblePadding": 10,
+        "bubbleBorderRadius": 14,
+        "bubbleMaxWidth": 90,
+        "standingImageUrl": null
+      },
+      "user": {
+        "name": "Cyber Citizen",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f43f5e'><path d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3a3 3 0 1 1-3 3 3 3 0 0 1 3-3zm0 14.2a7.2 7.2 0 0 1-6-3.2c.03-2 4-3.1 6-3.1s5.97 1.1 6 3.1a7.2 7.2 0 0 1-6 3.2z'/></svg>",
+        "textColor": "#fda4af",
+        "font": "'Outfit', sans-serif",
+        "bubbleBackgroundColor": "rgba(35, 18, 42, 0.88)",
+        "bubblePadding": 10,
+        "bubbleBorderRadius": 14,
+        "bubbleMaxWidth": 80,
+        "standingImageUrl": null
+      },
+      "window": {
+        "backgroundColor": "#090c15",
+        "backgroundImageUrl": null,
+        "backgroundSize": "cover",
+        "backgroundPosition": "center center",
+        "backgroundRepeat": "no-repeat"
+      },
+      "inputArea": {
+        "backgroundColor": "#131828",
+        "textColor": "#e0e7ff"
+      }
     }
   ]
 }
