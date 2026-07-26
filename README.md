@@ -13,10 +13,10 @@ A professional suite of two standalone userscripts designed to enhance productiv
 
 This repository contains two independent scripts. You may install either script individually or both simultaneously based on your workflow needs.
 
-| Script | Supported Platforms | Primary Function |
-| :--- | :--- | :--- |
-| **AI Theme Custom** | ChatGPT, Gemini | Full UI customization, preset themes, and chat navigation |
-| **AI Prompt Deck** | ChatGPT, Gemini, Claude | 1-Click prompt snippet manager and category tool |
+| Script | Supported Platforms | Primary Function | Installation |
+| :--- | :--- | :--- | :--- |
+| **AI Theme Custom** | ChatGPT, Gemini | Full UI customization, preset themes, and chat navigation | [Install AI Theme Custom](./AI-Theme-Custom.user.js) |
+| **AI Prompt Deck** | ChatGPT, Gemini, Claude | 1-Click prompt snippet manager and category tool | [Install AI Prompt Deck](./AI-Prompt-Deck.user.js) |
 
 ---
 
@@ -51,12 +51,18 @@ A fast prompt snippet manager for ChatGPT, Google Gemini, and Claude.
 
 ## Installation Guide
 
-1. Install [Tampermonkey](https://www.tampermonkey.net/) (or Violentmonkey) in your web browser.
-2. Open Tampermonkey Dashboard -> Go to **Utilities** -> Select **Import from file** or click **Create a new script**.
-3. Choose the script file to install:
-   - For UI Customization: [`AI-Theme-Custom.user.js`](./AI-Theme-Custom.user.js)
-   - For Prompt Snippets: [`AI-Prompt-Deck.user.js`](./AI-Prompt-Deck.user.js)
-4. Copy the script code, paste it into the editor, and save (`Ctrl + S`).
+1. **Install a Userscript Manager**:
+   - Install [Tampermonkey](https://www.tampermonkey.net/) (recommended) or Violentmonkey in your browser.
+
+2. **Enable Required Browser Permissions**:
+   > **Important Note for Chromium Browsers (Chrome, Edge, Brave, Opera)**:
+   > You must enable **Developer Mode** in your browser (`chrome://extensions/`) and ensure **Allow User Scripts** (or Extension Access to File URLs) is turned ON in Tampermonkey extension settings for userscripts to run properly.
+
+3. **One-Click Installation**:
+   - Click the installation link for your desired script:
+     - 🚀 [Install AI Theme Custom](./AI-Theme-Custom.user.js)
+     - ⚡ [Install AI Prompt Deck](./AI-Prompt-Deck.user.js)
+   - Tampermonkey will automatically open the installation page. Click **Install** (or **Reinstall**) to complete setup.
 
 ---
 
