@@ -1,0 +1,245 @@
+{
+  "developer": {
+    "logger_level": "log"
+  },
+  "preset_metadata": {
+    "version": "2.0.0",
+    "description": "Built-in preset themes for AI UX Customizer Enhanced"
+  },
+  "presets": [
+    {
+      "id": "preset-cyberpunk-neon",
+      "name": "Cyberpunk Neon ⚡",
+      "matchPatterns": ["/\\[cyberpunk\\]/i"],
+      "urlPatterns": [],
+      "assistant": {
+        "name": "Cyber AI",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300ffcc'><path d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-2h2zm0-4h-2V7h2z'/></svg>",
+        "textColor": "#00ffcc",
+        "font": "'Fira Code', 'Courier New', monospace",
+        "bubbleBackgroundColor": "rgba(20, 10, 35, 0.85)",
+        "bubblePadding": 12,
+        "bubbleBorderRadius": 12,
+        "bubbleMaxWidth": 90,
+        "standingImageUrl": null
+      },
+      "user": {
+        "name": "NetRunner",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff007f'><path d='M12 2A10 10 0 1 0 22 12 10 10 0 0 0 12 2zm0 3a3 3 0 1 1-3 3 3 3 0 0 1 3-3zm0 14.2a7.2 7.2 0 0 1-6-3.2c.03-2 4-3.1 6-3.1s5.97 1.1 6 3.1a7.2 7.2 0 0 1-6 3.2z'/></svg>",
+        "textColor": "#ff66cc",
+        "font": "'Fira Code', 'Courier New', monospace",
+        "bubbleBackgroundColor": "rgba(35, 10, 30, 0.85)",
+        "bubblePadding": 12,
+        "bubbleBorderRadius": 12,
+        "bubbleMaxWidth": 80,
+        "standingImageUrl": null
+      },
+      "window": {
+        "backgroundColor": "#0b0612",
+        "backgroundImageUrl": null,
+        "backgroundSize": "cover",
+        "backgroundPosition": "center center",
+        "backgroundRepeat": "no-repeat"
+      },
+      "inputArea": {
+        "backgroundColor": "#160b24",
+        "textColor": "#00ffcc"
+      }
+    },
+    {
+      "id": "preset-sakura-blossom",
+      "name": "Sakura Blossom 🌸",
+      "matchPatterns": ["/\\[sakura\\]/i"],
+      "urlPatterns": [],
+      "assistant": {
+        "name": "Sakura AI",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff9ebb'><path d='M12 2L9.5 8.5 3 9.5 8 14l-1.5 6.5L12 17l5.5 3.5L16 14l5-4.5-6.5-1z'/></svg>",
+        "textColor": "#ffd1dc",
+        "font": "'Quicksand', 'Nunito', sans-serif",
+        "bubbleBackgroundColor": "rgba(45, 25, 35, 0.85)",
+        "bubblePadding": 10,
+        "bubbleBorderRadius": 16,
+        "bubbleMaxWidth": 90,
+        "standingImageUrl": null
+      },
+      "user": {
+        "name": "Traveler",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffb7c5'><path d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3a3 3 0 1 1-3 3 3 3 0 0 1 3-3zm0 14.2a7.2 7.2 0 0 1-6-3.2c.03-2 4-3.1 6-3.1s5.97 1.1 6 3.1a7.2 7.2 0 0 1-6 3.2z'/></svg>",
+        "textColor": "#ffb7c5",
+        "font": "'Quicksand', 'Nunito', sans-serif",
+        "bubbleBackgroundColor": "rgba(55, 30, 42, 0.85)",
+        "bubblePadding": 10,
+        "bubbleBorderRadius": 16,
+        "bubbleMaxWidth": 80,
+        "standingImageUrl": null
+      },
+      "window": {
+        "backgroundColor": "#1e141a",
+        "backgroundImageUrl": null,
+        "backgroundSize": "cover",
+        "backgroundPosition": "center center",
+        "backgroundRepeat": "no-repeat"
+      },
+      "inputArea": {
+        "backgroundColor": "#2a1b24",
+        "textColor": "#ffe4e9"
+      }
+    },
+    {
+      "id": "preset-emerald-forest",
+      "name": "Emerald Forest 🌲",
+      "matchPatterns": ["/\\[emerald\\]/i"],
+      "urlPatterns": [],
+      "assistant": {
+        "name": "Forest Spirit",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2350c878'><path d='M12 2L4 12h5v8h6v-8h5z'/></svg>",
+        "textColor": "#a3e8b8",
+        "font": "'Segoe UI', sans-serif",
+        "bubbleBackgroundColor": "rgba(18, 38, 28, 0.85)",
+        "bubblePadding": 10,
+        "bubbleBorderRadius": 10,
+        "bubbleMaxWidth": 90,
+        "standingImageUrl": null
+      },
+      "user": {
+        "name": "Ranger",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232ecc71'><path d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3a3 3 0 1 1-3 3 3 3 0 0 1 3-3zm0 14.2a7.2 7.2 0 0 1-6-3.2c.03-2 4-3.1 6-3.1s5.97 1.1 6 3.1a7.2 7.2 0 0 1-6 3.2z'/></svg>",
+        "textColor": "#76d7c4",
+        "font": "'Segoe UI', sans-serif",
+        "bubbleBackgroundColor": "rgba(22, 48, 35, 0.85)",
+        "bubblePadding": 10,
+        "bubbleBorderRadius": 10,
+        "bubbleMaxWidth": 80,
+        "standingImageUrl": null
+      },
+      "window": {
+        "backgroundColor": "#0d1a14",
+        "backgroundImageUrl": null,
+        "backgroundSize": "cover",
+        "backgroundPosition": "center center",
+        "backgroundRepeat": "no-repeat"
+      },
+      "inputArea": {
+        "backgroundColor": "#14261d",
+        "textColor": "#d4efdf"
+      }
+    },
+    {
+      "id": "preset-sunset-vaporwave",
+      "name": "Sunset Vaporwave 🌅",
+      "matchPatterns": ["/\\[sunset\\]/i"],
+      "urlPatterns": [],
+      "assistant": {
+        "name": "Synthwave AI",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff7e5f'><path d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z'/></svg>",
+        "textColor": "#ffb37e",
+        "font": "'Outfit', sans-serif",
+        "bubbleBackgroundColor": "rgba(40, 20, 45, 0.85)",
+        "bubblePadding": 10,
+        "bubbleBorderRadius": 14,
+        "bubbleMaxWidth": 90,
+        "standingImageUrl": null
+      },
+      "user": {
+        "name": "Dreamer",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23feb47b'><path d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3a3 3 0 1 1-3 3 3 3 0 0 1 3-3zm0 14.2a7.2 7.2 0 0 1-6-3.2c.03-2 4-3.1 6-3.1s5.97 1.1 6 3.1a7.2 7.2 0 0 1-6 3.2z'/></svg>",
+        "textColor": "#ffd3b6",
+        "font": "'Outfit', sans-serif",
+        "bubbleBackgroundColor": "rgba(50, 25, 40, 0.85)",
+        "bubblePadding": 10,
+        "bubbleBorderRadius": 14,
+        "bubbleMaxWidth": 80,
+        "standingImageUrl": null
+      },
+      "window": {
+        "backgroundColor": "#1a0c1e",
+        "backgroundImageUrl": null,
+        "backgroundSize": "cover",
+        "backgroundPosition": "center center",
+        "backgroundRepeat": "no-repeat"
+      },
+      "inputArea": {
+        "backgroundColor": "#25122b",
+        "textColor": "#ffe0d6"
+      }
+    },
+    {
+      "id": "preset-deep-space",
+      "name": "Deep Space Neon 🌌",
+      "matchPatterns": ["/\\[space\\]/i"],
+      "urlPatterns": [],
+      "assistant": {
+        "name": "Cosmos Core",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300bfff'><circle cx='12' cy='12' r='8'/></svg>",
+        "textColor": "#80d8ff",
+        "font": "'Roboto', sans-serif",
+        "bubbleBackgroundColor": "rgba(10, 25, 45, 0.85)",
+        "bubblePadding": 10,
+        "bubbleBorderRadius": 10,
+        "bubbleMaxWidth": 90,
+        "standingImageUrl": null
+      },
+      "user": {
+        "name": "Astronaut",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2340c4ff'><path d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3a3 3 0 1 1-3 3 3 3 0 0 1 3-3zm0 14.2a7.2 7.2 0 0 1-6-3.2c.03-2 4-3.1 6-3.1s5.97 1.1 6 3.1a7.2 7.2 0 0 1-6 3.2z'/></svg>",
+        "textColor": "#b3e5fc",
+        "font": "'Roboto', sans-serif",
+        "bubbleBackgroundColor": "rgba(15, 35, 60, 0.85)",
+        "bubblePadding": 10,
+        "bubbleBorderRadius": 10,
+        "bubbleMaxWidth": 80,
+        "standingImageUrl": null
+      },
+      "window": {
+        "backgroundColor": "#050e1a",
+        "backgroundImageUrl": null,
+        "backgroundSize": "cover",
+        "backgroundPosition": "center center",
+        "backgroundRepeat": "no-repeat"
+      },
+      "inputArea": {
+        "backgroundColor": "#0c1b2e",
+        "textColor": "#e0f7fa"
+      }
+    },
+    {
+      "id": "preset-minimalist-slate",
+      "name": "Minimalist Slate 📓",
+      "matchPatterns": ["/\\[slate\\]/i"],
+      "urlPatterns": [],
+      "assistant": {
+        "name": "Assistant",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23cbd5e1'><path d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-2h2zm0-4h-2V7h2z'/></svg>",
+        "textColor": "#f1f5f9",
+        "font": "system-ui, -apple-system, sans-serif",
+        "bubbleBackgroundColor": "rgba(30, 41, 59, 0.85)",
+        "bubblePadding": 10,
+        "bubbleBorderRadius": 8,
+        "bubbleMaxWidth": 90,
+        "standingImageUrl": null
+      },
+      "user": {
+        "name": "You",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'><path d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 3a3 3 0 1 1-3 3 3 3 0 0 1 3-3zm0 14.2a7.2 7.2 0 0 1-6-3.2c.03-2 4-3.1 6-3.1s5.97 1.1 6 3.1a7.2 7.2 0 0 1-6 3.2z'/></svg>",
+        "textColor": "#e2e8f0",
+        "font": "system-ui, -apple-system, sans-serif",
+        "bubbleBackgroundColor": "rgba(51, 65, 85, 0.85)",
+        "bubblePadding": 10,
+        "bubbleBorderRadius": 8,
+        "bubbleMaxWidth": 80,
+        "standingImageUrl": null
+      },
+      "window": {
+        "backgroundColor": "#0f172a",
+        "backgroundImageUrl": null,
+        "backgroundSize": "cover",
+        "backgroundPosition": "center center",
+        "backgroundRepeat": "no-repeat"
+      },
+      "inputArea": {
+        "backgroundColor": "#1e293b",
+        "textColor": "#f8fafc"
+      }
+    }
+  ]
+}
