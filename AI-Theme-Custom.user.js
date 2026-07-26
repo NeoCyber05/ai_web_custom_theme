@@ -707,7 +707,8 @@
   let settingsPanelEl = null;
 
   function createSettingsButton() {
-    if (!document.body) return;
+    const parent = document.documentElement || document.body;
+    if (!parent) return;
     if (document.getElementById(`${APPID}-settings-btn`)) return;
 
     const btn = document.createElement('button');
@@ -716,17 +717,17 @@
     btn.title = 'AI Theme Custom';
     btn.style.cssText = `
       position: fixed !important;
-      bottom: 85px !important;
+      bottom: 145px !important;
       right: 20px !important;
       z-index: 2147483647 !important;
       width: 48px !important;
       height: 48px !important;
       border-radius: 16px !important;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.92), rgba(139, 92, 246, 0.92)) !important;
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.95), rgba(59, 130, 246, 0.95)) !important;
       color: #ffffff !important;
-      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+      border: 1px solid rgba(255, 255, 255, 0.3) !important;
       cursor: pointer !important;
-      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+      box-shadow: 0 8px 25px rgba(6, 182, 212, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
       backdrop-filter: blur(12px) !important;
       -webkit-backdrop-filter: blur(12px) !important;
       display: flex !important;
@@ -742,15 +743,15 @@
     `;
     btn.onmouseover = () => {
       btn.style.transform = 'translateY(-3px) scale(1.08)';
-      btn.style.boxShadow = '0 12px 30px rgba(99, 102, 241, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.5)';
+      btn.style.boxShadow = '0 12px 30px rgba(6, 182, 212, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.6)';
     };
     btn.onmouseout = () => {
       btn.style.transform = 'translateY(0) scale(1)';
-      btn.style.boxShadow = '0 8px 25px rgba(99, 102, 241, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35)';
+      btn.style.boxShadow = '0 8px 25px rgba(6, 182, 212, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4)';
     };
     btn.onclick = toggleSettingsPanel;
 
-    document.body.appendChild(btn);
+    parent.appendChild(btn);
   }
 
   function toggleSettingsPanel() {
@@ -762,16 +763,18 @@
   }
 
   function renderSettingsPanel() {
+    const parent = document.documentElement || document.body;
+    if (!parent) return;
     if (!settingsPanelEl) {
       settingsPanelEl = document.createElement('div');
       settingsPanelEl.id = `${APPID}-settings-panel`;
       settingsPanelEl.style.cssText = `
         position: fixed !important;
-        bottom: 140px !important;
+        bottom: 205px !important;
         right: 20px !important;
         z-index: 2147483647 !important;
         width: 330px !important;
-        max-height: 80vh !important;
+        max-height: 75vh !important;
         overflow-y: auto !important;
         background: #181825 !important;
         color: #cdd6f4 !important;
@@ -784,7 +787,7 @@
         visibility: visible !important;
         opacity: 1 !important;
       `;
-      document.body.appendChild(settingsPanelEl);
+      parent.appendChild(settingsPanelEl);
     }
 
     const activeTheme = getActiveTheme();

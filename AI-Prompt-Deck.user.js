@@ -134,7 +134,7 @@
       toast.style.cssText = `
         position: fixed !important;
         bottom: 20px !important;
-        right: 76px !important;
+        right: 20px !important;
         left: auto !important;
         background: rgba(24, 24, 37, 0.92) !important;
         color: #fff !important;
@@ -159,6 +159,8 @@
   // --- Insert Text into Textarea ---
   function insertTextToInput(text) {
     const selectors = [
+      'rich-textarea .ql-editor',
+      '.ql-editor',
       '#prompt-textarea',
       'textarea',
       '[contenteditable="true"]',
@@ -217,7 +219,8 @@
   let quickBarEl = null;
 
   function createToggleBtn() {
-    if (!document.body) return;
+    const parent = document.documentElement || document.body;
+    if (!parent) return;
     if (document.getElementById(`${APPID}-toggle-btn`)) return;
 
     const btn = document.createElement('button');
@@ -227,17 +230,17 @@
     btn.style.cssText = `
       position: fixed !important;
       bottom: 85px !important;
-      right: 76px !important;
+      right: 20px !important;
       left: auto !important;
       z-index: 2147483647 !important;
       width: 48px !important;
       height: 48px !important;
       border-radius: 16px !important;
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.92), rgba(239, 68, 68, 0.92)) !important;
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.95), rgba(168, 85, 247, 0.95)) !important;
       color: #ffffff !important;
-      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+      border: 1px solid rgba(255, 255, 255, 0.3) !important;
       cursor: pointer !important;
-      box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+      box-shadow: 0 8px 25px rgba(236, 72, 153, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
       backdrop-filter: blur(12px) !important;
       -webkit-backdrop-filter: blur(12px) !important;
       display: flex !important;
@@ -253,15 +256,15 @@
     `;
     btn.onmouseover = () => {
       btn.style.transform = 'translateY(-3px) scale(1.08)';
-      btn.style.boxShadow = '0 12px 30px rgba(245, 158, 11, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.5)';
+      btn.style.boxShadow = '0 12px 30px rgba(236, 72, 153, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.6)';
     };
     btn.onmouseout = () => {
       btn.style.transform = 'translateY(0) scale(1)';
-      btn.style.boxShadow = '0 8px 25px rgba(245, 158, 11, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35)';
+      btn.style.boxShadow = '0 8px 25px rgba(236, 72, 153, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4)';
     };
     btn.onclick = toggleQuickBar;
 
-    document.body.appendChild(btn);
+    parent.appendChild(btn);
   }
 
   function toggleQuickBar() {
@@ -273,13 +276,15 @@
   }
 
   function renderQuickBar() {
+    const parent = document.documentElement || document.body;
+    if (!parent) return;
     if (!quickBarEl) {
       quickBarEl = document.createElement('div');
       quickBarEl.id = `${APPID}-quick-bar`;
       quickBarEl.style.cssText = `
         position: fixed !important;
-        bottom: 140px !important;
-        right: 76px !important;
+        bottom: 145px !important;
+        right: 20px !important;
         left: auto !important;
         z-index: 2147483647 !important;
         width: 330px !important;
@@ -289,14 +294,14 @@
         color: #cdd6f4 !important;
         border-radius: 14px !important;
         padding: 14px !important;
-        border: 1px solid rgba(255,152,0,0.3) !important;
+        border: 1px solid rgba(236, 72, 153, 0.35) !important;
         box-shadow: 0 10px 40px rgba(0,0,0,0.6) !important;
         font-family: system-ui, -apple-system, sans-serif !important;
         pointer-events: auto !important;
         visibility: visible !important;
         opacity: 1 !important;
       `;
-      document.body.appendChild(quickBarEl);
+      parent.appendChild(quickBarEl);
     }
 
     let buttonsHtml = config.buttons.map(b => `
