@@ -1,6 +1,5 @@
 // ==UserScript==
 // @name         AI Prompt Deck
-// @namespace    https://github.com/ai-prompt-deck
 // @version      2.0.1
 // @license      MIT
 // @description  1-Click Prompt & Text Snippet manager for ChatGPT, Gemini, and Claude. Features EN/VI multilingual support, category manager, and JSON import/export.
@@ -160,8 +159,10 @@
   function insertTextToInput(text) {
     const selectors = [
       'rich-textarea .ql-editor',
+      'rich-textarea p',
       '.ql-editor',
       '#prompt-textarea',
+      'div.ProseMirror#prompt-textarea',
       'textarea',
       '[contenteditable="true"]',
       'div[role="textbox"]',
@@ -191,11 +192,12 @@
       const val = targetEl.value;
       targetEl.value = val.substring(0, start) + text + val.substring(end);
       targetEl.selectionStart = targetEl.selectionEnd = start + text.length;
-      targetEl.dispatchEvent(new Event('input', { bubbles: true }));
-    } else if (targetEl.isContentEditable) {
+      targetEl.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+      targetEl.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+    } else if (targetEl.isContentEditable || targetEl.classList.contains('ql-editor')) {
       try {
         const selection = window.getSelection();
-        if (selection.rangeCount > 0) {
+        if (selection.rangeCount > 0 && selection.anchorNode && targetEl.contains(selection.anchorNode)) {
           const range = selection.getRangeAt(0);
           range.deleteContents();
           const textNode = document.createTextNode(text);
@@ -204,12 +206,31 @@
           selection.removeAllRanges();
           selection.addRange(range);
         } else {
-          targetEl.innerText += text;
+          const p = targetEl.querySelector('p') || targetEl;
+          if (p.innerHTML === '<br>' || p.innerHTML === '') {
+            p.textContent = text;
+          } else {
+            p.textContent += text;
+          }
         }
       } catch (e) {
-        targetEl.innerText += text;
+        const p = targetEl.querySelector('p') || targetEl;
+        p.textContent += text;
       }
-      targetEl.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: text }));
+
+      try {
+        const inputEvent = new InputEvent('input', {
+          bubbles: true,
+          cancelable: true,
+          inputType: 'insertText',
+          data: text,
+          composed: true
+        });
+        targetEl.dispatchEvent(inputEvent);
+      } catch (e) {
+        targetEl.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+      }
+      targetEl.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
     }
 
     showToast(t('inserted_toast'));
@@ -219,8 +240,7 @@
   let quickBarEl = null;
 
   function createToggleBtn() {
-    const parent = document.documentElement || document.body;
-    if (!parent) return;
+    if (!document.body) return;
     if (document.getElementById(`${APPID}-toggle-btn`)) return;
 
     const btn = document.createElement('button');
@@ -264,7 +284,7 @@
     };
     btn.onclick = toggleQuickBar;
 
-    parent.appendChild(btn);
+    document.body.appendChild(btn);
   }
 
   function toggleQuickBar() {
@@ -276,8 +296,7 @@
   }
 
   function renderQuickBar() {
-    const parent = document.documentElement || document.body;
-    if (!parent) return;
+    if (!document.body) return;
     if (!quickBarEl) {
       quickBarEl = document.createElement('div');
       quickBarEl.id = `${APPID}-quick-bar`;
@@ -301,7 +320,7 @@
         visibility: visible !important;
         opacity: 1 !important;
       `;
-      parent.appendChild(quickBarEl);
+      document.body.appendChild(quickBarEl);
     }
 
     let buttonsHtml = config.buttons.map(b => `

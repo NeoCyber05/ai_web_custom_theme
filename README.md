@@ -1,4 +1,4 @@
-# AI Workspace Suite
+# AI Web Custom
 
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![userscript](https://img.shields.io/badge/userscript-Tampermonkey-blueviolet)
@@ -9,7 +9,7 @@ A professional suite of two standalone userscripts designed to enhance productiv
 
 ---
 
-## Suite Overview
+## Overview
 
 This repository contains two independent scripts. You may install either script individually or both simultaneously based on your workflow needs.
 
@@ -27,11 +27,11 @@ This repository contains two independent scripts. You may install either script 
 An interface customization and navigation engine for ChatGPT and Google Gemini.
 
 ### Key Features
-- **Multilingual Support (EN / VI)**: Integrated language switcher (`English` / `Tiếng Việt`) available directly inside the Settings Panel.
-- **Built-in Presets**: Pre-configured theme library (Cyberpunk Neon ⚡, Sakura Blossom 🌸, Emerald Forest 🌲, Sunset Vaporwave 🌅, Deep Space Neon 🌌, Minimalist Slate 📓, Golden Amber Luxe ⚜️, Nordic Frost Ice ❄️, Dracula Gothic 🧛, Tokyo Midnight 🗼) applicable with one click.
-- **Full Visual Control**: Modify display names, avatar icons (SVG, URL, Base64), standing character images, chat bubble colors, border radius, padding, page background images, and input fields.
-- **Automatic Matching**: Dynamic theme switching based on Chat Title patterns or URL regular expressions.
-- **Navigation Tools**: Fixed/floating message toolbar, searchable jump list, and keyboard shortcuts (`Alt+J`, `Alt+N`).
+- **Multilingual Support (EN / VI)**: Quick language toggle inside the Settings Panel.
+- **Visual Theme Library**: Mini-chat color previews for Cyberpunk Neon, Sakura Blossom, Emerald Forest, Sunset Vaporwave, Deep Space Neon, Minimalist Slate, Golden Amber Luxe, Nordic Frost Ice, Dracula Gothic, and Tokyo Midnight.
+- **Full Visual Control**: Customize names, avatars, chat bubbles, spacing, backgrounds, and more.
+- **Automatic Matching**: Switch themes automatically by chat title or URL pattern.
+- **Navigation Tools**: Toolbar, jump list, and shortcuts (`Alt+J`, `Alt+N`).
 
 ---
 
@@ -42,10 +42,10 @@ An interface customization and navigation engine for ChatGPT and Google Gemini.
 A fast prompt snippet manager for ChatGPT, Google Gemini, and Claude.
 
 ### Key Features
-- **Multilingual Support (EN / VI)**: Quick language toggle (`English` / `Tiếng Việt`).
-- **1-Click Prompt Insertion**: Instantly paste pre-written prompt templates directly into the chat input area.
-- **Category Organization**: Group prompts by custom categories (e.g., Coding, Writing, Translation, General).
-- **Management Modal**: Add, edit, remove, and reorganize custom prompt buttons with an intuitive modal editor.
+- **Multilingual Support (EN / VI)**: Quick language toggle.
+- **1-Click Prompt Insertion**: Paste prompt templates into the chat input instantly.
+- **Category Organization**: Group prompts by custom categories like Coding, Writing, Translation, ...
+- **Management Modal**: Add, edit, remove, and reorganize prompt buttons.
 
 ---
 
@@ -80,7 +80,7 @@ Ensure you have a userscript manager extension installed:
 
 ---
 
-## How to Use
+### Step 4: How to Use
 
 1. Open your target AI platform:
    - [ChatGPT](https://chatgpt.com)
@@ -88,9 +88,9 @@ Ensure you have a userscript manager extension installed:
    - [Claude](https://claude.ai) *(Prompt Deck only)*
 
 2. **AI Theme Custom**:
-   - Look for the floating **🎨** button at the bottom-right corner of the page.
+   - Look for the palette icon beside the model/input controls.
    - Click it to open the **Settings Panel**.
-   - Click **Preset Themes** to apply themes like *Cyberpunk Neon*, *Sakura Blossom*, or *Emerald Forest*.
+   - Open **Preset Themes**, compare the mini-chat color previews, then select a theme card.
    - Click the language button (**English** / **Tiếng Việt**) at the top to toggle languages.
 
 3. **AI Prompt Deck**:
