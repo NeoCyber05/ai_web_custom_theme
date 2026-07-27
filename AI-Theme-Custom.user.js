@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         AI Theme Custom
-// @version      2.6.0
+// @version      2.7.0
 // @license      MIT
-// @description  Full interface customization engine for ChatGPT and Gemini (Based on AI-UX-Customizer architecture): Custom themes, preset picker, EN/VI multilingual support, custom avatars & icons, standing images, page background images/colors, and input bar settings button.
+// @description  Full interface customization engine for ChatGPT, Gemini, and Claude (Based on AI-UX-Customizer architecture): Custom themes, preset picker, EN/VI multilingual support, custom avatars & icons, standing images, page background images/colors, and input bar settings button.
 // @icon         data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 -960 960 960' width='24px' fill='%235985E1'%3E%3Cpath d='M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 32.5-156t88-127Q256-817 330-848.5T488-880q80 0 151 27.5t124.5 76q53.5 48.5 85 115T880-518q0 115-70 176.5T640-280h-74q-9 0-12.5 5t-3.5 11q0 12 15 34.5t15 51.5q0 50-27.5 74T480-80Zm0-400Zm-220 40q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120-160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm200 0q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120 160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17ZM480-160q9 0 14.5-5t5.5-13q0-14-15-33t-15-57q0-42 29-67t71-25h70q66 0 113-38.5T800-518q0-121-92.5-201.5T488-800q-136 0-232 93t-96 227q0 133 93.5 226.5T480-160Z'/%3E%3C/svg%3E
 // @author       AI Theme Team
 // @match        https://chatgpt.com/*
@@ -10,11 +10,13 @@
 // @match        https://gemini.google.com/*
 // @match        https://bard.google.com/*
 // @match        https://share.gemini.google/*
+// @match        https://claude.ai/*
 // @include      *://chatgpt.com/*
 // @include      *://chat.openai.com/*
 // @include      *://gemini.google.com/*
 // @include      *://bard.google.com/*
 // @include      *://share.gemini.google/*
+// @include      *://claude.ai/*
 // @grant        GM.setValue
 // @grant        GM.getValue
 // @grant        GM.deleteValue
@@ -47,6 +49,19 @@
   const CHATGPT_INPUT_AREA_SELECTOR = 'form[data-type="unified-composer"]';
   const CHATGPT_CHAT_CONTENT_SELECTOR = ':is(.group\\/turn-messages, div[class*="--thread-content-max-width"].grid)';
   const GEMINI_CHAT_CONTENT_SELECTOR = '.conversation-container';
+  const CLAUDE_ANCHOR_SELECTORS = [
+    'fieldset:has([data-testid="chat-input"]) div.relative.flex.gap-2.w-full.items-center > div.flex-row',
+    'fieldset:has(div.ProseMirror[data-testid="chat-input"]) div.flex-row',
+    'fieldset:has([data-testid="chat-input"]) .flex-row'
+  ];
+  const CLAUDE_INPUT_AREA_SELECTORS = [
+    'fieldset:has([data-testid="chat-input"])',
+    'fieldset:has(div.ProseMirror[data-testid="chat-input"])'
+  ];
+  const CLAUDE_CHAT_CONTENT_SELECTOR = ':is([data-testid="conversation-turn-list"], main .mx-auto)';
+  const BASE_MESSAGE_SELECTOR = 'user-query, model-response, [data-message-author-role="user"], [data-message-author-role="assistant"], .user-turn, .agent-turn';
+  const CLAUDE_MESSAGE_SELECTOR = '[data-testid="user-message"], [data-testid="human-message"], [data-testid="assistant-turn"], [data-testid="assistant-message"]';
+  const MESSAGE_SELECTOR = `${BASE_MESSAGE_SELECTOR}, ${CLAUDE_MESSAGE_SELECTOR}`;
   const CSS_VAR_CHAT_MAX_WIDTH = `--${APPID}-chat-content-max-width`;
   const CLASS_MAX_WIDTH_ACTIVE = `${APPID}-max-width-active`;
   const CHAT_MAX_WIDTH_MIN = 30;
@@ -59,14 +74,49 @@
   // --- Platform Detection ---
   const PLATFORMS = {
     CHATGPT: 'ChatGPT',
-    GEMINI: 'Gemini'
+    GEMINI: 'Gemini',
+    CLAUDE: 'Claude'
   };
 
   function detectPlatform() {
     const host = window.location.hostname.toLowerCase();
     if (host.includes('chatgpt.com') || host.includes('openai.com')) return PLATFORMS.CHATGPT;
     if (host.includes('gemini.google.com') || host.includes('bard.google.com') || host.includes('share.gemini.google')) return PLATFORMS.GEMINI;
+    if (host.includes('claude.ai')) return PLATFORMS.CLAUDE;
     return null;
+  }
+
+  function getInputAreaSelectors() {
+    switch (CURRENT_PLATFORM) {
+      case PLATFORMS.GEMINI:
+        return GEMINI_INPUT_AREA_SELECTORS;
+      case PLATFORMS.CLAUDE:
+        return CLAUDE_INPUT_AREA_SELECTORS;
+      default:
+        return [CHATGPT_INPUT_AREA_SELECTOR];
+    }
+  }
+
+  function getAnchorSelectors() {
+    switch (CURRENT_PLATFORM) {
+      case PLATFORMS.GEMINI:
+        return GEMINI_ANCHOR_SELECTORS;
+      case PLATFORMS.CLAUDE:
+        return CLAUDE_ANCHOR_SELECTORS;
+      default:
+        return [CHATGPT_ANCHOR_SELECTOR];
+    }
+  }
+
+  function getWindowBackgroundSelector() {
+    switch (CURRENT_PLATFORM) {
+      case PLATFORMS.GEMINI:
+        return 'bard-sidenav-content';
+      case PLATFORMS.CLAUDE:
+        return ':is(main, [data-testid="chat-page"])';
+      default:
+        return ':is(div[data-scroll-root], div:has(> main#main):not(div[data-scroll-root] *))';
+    }
   }
 
   const CURRENT_PLATFORM = detectPlatform();
@@ -75,37 +125,37 @@
   // --- i18n Dictionary ---
   const I18N = {
     vi: {
-      settings_title: 'AI Theme Custom',
-      applied_theme: 'Theme đang áp dụng:',
-      presets_btn: 'Theme Có Sẵn (Presets)',
-      theme_editor_btn: 'Trình Chỉnh Sửa Theme',
-      json_editor_btn: 'Chỉnh Sửa JSON / Import Export',
-      icon_size: 'Kích thước Avatar (px):',
-      chat_max_width: 'Chiều rộng tối đa khung Chat (vw):',
-      chat_max_width_default: 'Mặc định web',
+      settings_title: 'Tùy Chỉnh Giao Diện AI',
+      applied_theme: 'Giao diện đang áp dụng:',
+      presets_btn: 'Giao Diện Có Sẵn',
+      theme_editor_btn: 'Trình Chỉnh Sửa Giao Diện',
+      json_editor_btn: 'Chỉnh Sửa JSON / Nhập Xuất',
+      icon_size: 'Kích thước ảnh đại diện (px):',
+      chat_max_width: 'Chiều rộng tối đa khung trò chuyện (vw):',
+      chat_max_width_default: 'Mặc định trang web',
       lang_switch: 'English',
 
-      editor_title: 'Trình Quản Lý & Chỉnh Sửa Theme',
-      select_theme: 'Chọn Theme:',
-      new_theme: 'Theme Mới',
+      editor_title: 'Quản Lý & Chỉnh Sửa Giao Diện',
+      select_theme: 'Chọn giao diện:',
+      new_theme: 'Giao diện mới',
       delete_theme: 'Xóa',
       rename_theme: 'Đổi tên:',
-      title_patterns: 'Regex khớp Tiêu đề Chat:',
+      title_patterns: 'Biểu thức chính quy khớp tiêu đề trò chuyện:',
 
-      assistant_sec: 'AI Assistant (Trợ Lý)',
-      user_sec: 'User (Người Dùng)',
-      window_sec: 'Nền Trang (Window Background)',
-      input_sec: 'Khung Nhập Liệu (Input Area)',
+      assistant_sec: 'Trợ lý AI',
+      user_sec: 'Người dùng',
+      window_sec: 'Nền trang',
+      input_sec: 'Khung nhập liệu',
 
       field_name: 'Tên hiển thị:',
-      field_icon: 'Icon (URL / SVG / Base64):',
+      field_icon: 'Biểu tượng (URL / SVG / Base64):',
       field_standing_img: 'Ảnh đứng nhân vật (URL):',
       field_text_color: 'Màu chữ:',
       field_bubble_bg: 'Màu nền bong bóng chat:',
 
       window_bg_color: 'Màu nền trang:',
       window_bg_image: 'Ảnh nền trang (URL hoặc chọn từ máy):',
-      window_bg_size: 'Kiểu co giãn (cover, contain...):',
+      window_bg_size: 'Kiểu co giãn (phủ, vừa khung...):',
       pick_image: 'Chọn ảnh',
       pick_image_processing: 'Đang xử lý ảnh...',
       pick_image_done: 'Đã chọn ảnh',
@@ -117,11 +167,19 @@
       save: 'Lưu',
       close: 'Đóng',
       reset: 'Khôi phục mặc định',
-      preset_modal_title: 'Thư Viện Theme Có Sẵn (Presets)',
-      select_preset: '⚡ Chọn Theme',
-      preset_applied: 'Đã áp dụng theme thành công!',
+      preset_modal_title: 'Thư Viện Giao Diện Có Sẵn',
+      preset_modal_subtitle: '{count} giao diện · Xem trước mini',
+      select_preset: '⚡ Chọn giao diện',
+      preset_applied: 'Đã áp dụng giao diện thành công!',
       active_theme: 'Đang dùng',
-      restore_native: 'Khôi phục giao diện web'
+      restore_native: 'Khôi phục giao diện gốc',
+      preset_preview_assistant: 'AI · Xem trước giao diện',
+      preset_preview_user: 'Bạn · Trông ổn đấy',
+      default_theme: 'Mặc định',
+      default_theme_option: 'Giao diện mặc định',
+      theme_name_fallback: 'Giao diện {n}',
+      json_syntax_error: 'Lỗi cú pháp JSON: {message}',
+      aria_settings: 'Tùy chỉnh giao diện AI'
     },
     en: {
       settings_title: 'AI Theme Custom',
@@ -167,15 +225,31 @@
       close: 'Close',
       reset: 'Reset Defaults',
       preset_modal_title: 'Built-in Preset Themes Library',
+      preset_modal_subtitle: '{count} themes · Mini chat preview',
       select_preset: '⚡ Select Theme',
       preset_applied: 'Theme successfully applied!',
       active_theme: 'Active',
-      restore_native: 'Restore website appearance'
+      restore_native: 'Restore website appearance',
+      preset_preview_assistant: 'AI · Theme preview',
+      preset_preview_user: 'User · Looks good',
+      default_theme: 'Default',
+      default_theme_option: 'Default Theme',
+      theme_name_fallback: 'Theme {n}',
+      json_syntax_error: 'Syntax Error JSON: {message}',
+      aria_settings: 'AI Theme Custom'
     }
   };
 
   let currentLang = 'vi';
-  function t(key) { return I18N[currentLang]?.[key] || I18N['en']?.[key] || key; }
+  function t(key, vars) {
+    let str = I18N[currentLang]?.[key] ?? I18N.en?.[key] ?? key;
+    if (vars && typeof vars === 'object') {
+      for (const [name, value] of Object.entries(vars)) {
+        str = str.replaceAll(`{${name}}`, String(value));
+      }
+    }
+    return str;
+  }
 
   // --- SVG Data URI Converter (Matching AI-UX-Customizer svgToDataUrl) ---
   function svgToDataUrl(svg) {
@@ -379,10 +453,15 @@
           background: 'input-area-v2',
           text: 'rich-textarea .ql-editor'
         }
-      : {
-          background: 'form[data-type="unified-composer"] div[style*="border-radius"]',
-          text: 'div.ProseMirror#prompt-textarea'
-        };
+      : platform === PLATFORMS.CLAUDE
+        ? {
+            background: 'fieldset:has([data-testid="chat-input"])',
+            text: 'div.ProseMirror[data-testid="chat-input"]'
+          }
+        : {
+            background: 'form[data-type="unified-composer"] div[style*="border-radius"]',
+            text: 'div.ProseMirror#prompt-textarea'
+          };
     const declarations = [];
     if (inputArea?.backgroundColor) {
       declarations.push(`${selectors.background} { background-color: ${inputArea.backgroundColor} !important; }`);
@@ -400,7 +479,7 @@
     const palette = getPresetPreviewPalette(preset);
     const isNative = preset.id === 'preset-native-default';
     const isActive = preset.id === activePresetId;
-    const name = preset.name || `Theme ${index + 1}`;
+    const name = preset.name || t('theme_name_fallback', { n: index + 1 });
     const actionLabel = isNative ? labels.restore : labels.apply;
 
     return h('button', {
@@ -422,12 +501,12 @@
         h('span', {
           className: `${APPID}-preview-assistant`,
           style: `color:${palette.assistantText};background:${palette.assistantBubble};`,
-          text: 'AI · Theme preview'
+          text: labels.previewAssistant
         }),
         h('span', {
           className: `${APPID}-preview-user`,
           style: `color:${palette.userText};background:${palette.userBubble};`,
-          text: 'User · Looks good'
+          text: labels.previewUser
         }),
         h('span', {
           className: `${APPID}-preview-input`,
@@ -442,7 +521,7 @@
   const BUILTIN_PRESETS = [
     {
       id: 'preset-native-default',
-      name: '🌐 Giao diện Mặc định Web (Native)',
+      name: '🌐 Giao diện gốc',
       matchPatterns: [],
       urlPatterns: [],
       assistant: { name: null, icon: null, standingImageUrl: null, textColor: null, font: null, bubbleBackgroundColor: null, bubblePadding: null, bubbleBorderRadius: null, bubbleMaxWidth: null },
@@ -615,9 +694,14 @@
   }
 
   function getChatContentSelector() {
-    return CURRENT_PLATFORM === PLATFORMS.GEMINI
-      ? GEMINI_CHAT_CONTENT_SELECTOR
-      : CHATGPT_CHAT_CONTENT_SELECTOR;
+    switch (CURRENT_PLATFORM) {
+      case PLATFORMS.GEMINI:
+        return GEMINI_CHAT_CONTENT_SELECTOR;
+      case PLATFORMS.CLAUDE:
+        return CLAUDE_CHAT_CONTENT_SELECTOR;
+      default:
+        return CHATGPT_CHAT_CONTENT_SELECTOR;
+    }
   }
 
   function themeHasStandingImage(theme) {
@@ -660,9 +744,9 @@
 
   function buildChatContentMaxWidthCss() {
     const chatSelector = getChatContentSelector();
-    const scopedSelector = CURRENT_PLATFORM === PLATFORMS.GEMINI
-      ? `body.${CLASS_MAX_WIDTH_ACTIVE} ${chatSelector}`
-      : `body.${CLASS_MAX_WIDTH_ACTIVE} main ${chatSelector}`;
+    const scopedSelector = CURRENT_PLATFORM === PLATFORMS.CHATGPT
+      ? `body.${CLASS_MAX_WIDTH_ACTIVE} main ${chatSelector}`
+      : `body.${CLASS_MAX_WIDTH_ACTIVE} ${chatSelector}`;
     return `
       ${scopedSelector} {
         max-width: var(${CSS_VAR_CHAT_MAX_WIDTH}) !important;
@@ -695,6 +779,10 @@
       role = 'user';
     } else if (tagName === 'model-response' || roleAttr === 'assistant' || node.classList.contains('agent-turn')) {
       role = 'assistant';
+    } else if (node.matches?.('[data-testid="user-message"], [data-testid="human-message"], .font-user-message')) {
+      role = 'user';
+    } else if (node.matches?.('[data-testid="assistant-turn"], [data-testid="assistant-message"], .font-claude-response')) {
+      role = 'assistant';
     }
     if (!role) return;
 
@@ -724,7 +812,7 @@
 
   function renderAllAvatars() {
     if (!document.body) return;
-    const selectors = 'user-query, model-response, [data-message-author-role="user"], [data-message-author-role="assistant"], .user-turn, .agent-turn';
+    const selectors = MESSAGE_SELECTOR;
     document.querySelectorAll(selectors).forEach(processMessageElement);
   }
 
@@ -799,7 +887,7 @@
     root.style.setProperty('--aiuxc-assistant-icon', `url("${asstIconUrl}")`);
 
     let css = `
-      user-query, model-response, [data-message-author-role="user"], [data-message-author-role="assistant"], .user-turn, .agent-turn {
+      ${MESSAGE_SELECTOR} {
         position: relative !important;
         overflow: visible !important;
         min-height: calc(var(--aiuxc-icon-size, 42px) + 2em) !important;
@@ -844,25 +932,33 @@
       }
 
       /* User Avatar on Right */
-      user-query .side-avatar-container, [data-message-author-role="user"] .side-avatar-container, .user-turn .side-avatar-container {
+      user-query .side-avatar-container, [data-message-author-role="user"] .side-avatar-container, .user-turn .side-avatar-container, [data-testid="user-message"] .side-avatar-container, [data-testid="human-message"] .side-avatar-container {
         left: 100% !important;
         margin-left: 12px !important;
       }
-      user-query .side-avatar-icon, [data-message-author-role="user"] .side-avatar-icon, .user-turn .side-avatar-icon {
+      user-query .side-avatar-icon, [data-message-author-role="user"] .side-avatar-icon, .user-turn .side-avatar-icon, [data-testid="user-message"] .side-avatar-icon, [data-testid="human-message"] .side-avatar-icon {
         background-image: var(--aiuxc-user-icon) !important;
       }
 
       /* Assistant Avatar on Left */
-      model-response .side-avatar-container, [data-message-author-role="assistant"] .side-avatar-container, .agent-turn .side-avatar-container {
+      model-response .side-avatar-container, [data-message-author-role="assistant"] .side-avatar-container, .agent-turn .side-avatar-container, [data-testid="assistant-turn"] .side-avatar-container, [data-testid="assistant-message"] .side-avatar-container {
         right: 100% !important;
         margin-right: 12px !important;
       }
-      model-response .side-avatar-icon, [data-message-author-role="assistant"] .side-avatar-icon, .agent-turn .side-avatar-icon {
+      model-response .side-avatar-icon, [data-message-author-role="assistant"] .side-avatar-icon, .agent-turn .side-avatar-icon, [data-testid="assistant-turn"] .side-avatar-icon, [data-testid="assistant-message"] .side-avatar-icon {
         background-image: var(--aiuxc-assistant-icon) !important;
       }
 
       /* Gemini Specific Margin space for side avatars */
       user-query, model-response {
+        margin-left: ${iconSize + 16}px !important;
+        margin-right: ${iconSize + 16}px !important;
+        width: calc(100% - ${(iconSize + 16) * 2}px) !important;
+        box-sizing: border-box !important;
+      }
+
+      /* Claude Specific Margin space for side avatars */
+      [data-testid="user-message"], [data-testid="human-message"], [data-testid="assistant-turn"], [data-testid="assistant-message"] {
         margin-left: ${iconSize + 16}px !important;
         margin-right: ${iconSize + 16}px !important;
         width: calc(100% - ${(iconSize + 16) * 2}px) !important;
@@ -875,20 +971,18 @@
       }
 
       /* Bubble Customization */
-      .user-query-bubble-with-background, user-query .query-text {
+      .user-query-bubble-with-background, user-query .query-text, [data-testid="user-message"], [data-testid="human-message"], .font-user-message {
         ${buildBubbleThemeCss(user)}
       }
 
-      .response-container-with-gpi, model-response .markdown, message-content.model-response-text {
+      .response-container-with-gpi, model-response .markdown, message-content.model-response-text, .font-claude-response, .font-claude-response-body, .standard-markdown {
         ${buildBubbleThemeCss(asst)}
       }
     `;
 
     // Window Background — platform-scoped so Tailwind flex utilities inside composer stay untouched
     if (win.backgroundColor || win.backgroundImageUrl) {
-      const windowBgSelector = CURRENT_PLATFORM === PLATFORMS.GEMINI
-        ? 'bard-sidenav-content'
-        : ':is(div[data-scroll-root], div:has(> main#main):not(div[data-scroll-root] *))';
+      const windowBgSelector = getWindowBackgroundSelector();
       css += `
         ${windowBgSelector} {
           ${win.backgroundColor ? `background-color: ${win.backgroundColor} !important;` : ''}
@@ -900,10 +994,20 @@
             background-attachment: fixed !important;
           ` : ''}
         }
+      `;
+      if (CURRENT_PLATFORM === PLATFORMS.CHATGPT) {
+        css += `
         form[data-type="unified-composer"], form[data-type="unified-composer"] * {
           background-image: none !important;
         }
-      `;
+        `;
+      } else if (CURRENT_PLATFORM === PLATFORMS.CLAUDE) {
+        css += `
+        fieldset:has([data-testid="chat-input"]), fieldset:has([data-testid="chat-input"]) * {
+          background-image: none !important;
+        }
+        `;
+      }
     }
 
     // Input Area
@@ -913,7 +1017,7 @@
     if (styleEl) styleEl.textContent = css;
 
     const label = document.getElementById(`${APPID}-applied-theme-name`);
-    if (label) label.textContent = activeTheme.name || 'Default';
+    if (label) label.textContent = activeTheme.name || t('default_theme');
 
     renderStandingImages(activeTheme);
     renderAllAvatars();
@@ -923,10 +1027,8 @@
   // --- Sentinel Engine for SPA Instant DOM Detection ---
   function initSentinelEngine() {
     const sentinelStyleId = `${APPID}-sentinel-rules`;
-    const messageSelector = 'user-query, model-response, [data-message-author-role="user"], [data-message-author-role="assistant"], .user-turn, .agent-turn';
-    const inputAreaSelector = CURRENT_PLATFORM === PLATFORMS.GEMINI
-      ? `:is(${GEMINI_INPUT_AREA_SELECTORS.join(', ')})`
-      : CHATGPT_INPUT_AREA_SELECTOR;
+    const messageSelector = MESSAGE_SELECTOR;
+    const inputAreaSelector = `:is(${getInputAreaSelectors().join(', ')})`;
 
     const processInsertedNode = (node) => {
       if (!(node instanceof HTMLElement)) return;
@@ -1001,7 +1103,8 @@
     btn.style.setProperty('display', 'flex', 'important');
   }
 
-  function applyInlineButtonStyles(btn, isGemini) {
+  function applyInlineButtonStyles(btn, platform) {
+    const isGemini = platform === PLATFORMS.GEMINI;
     btn.style.cssText = `
       z-index: 1000 !important;
       background: transparent !important;
@@ -1014,7 +1117,9 @@
       align-self: center !important;
       color: ${isGemini
         ? 'var(--mat-icon-button-icon-color, var(--mat-sys-on-surface-variant, #5f6368))'
-        : '#c4c7c5'} !important;
+        : platform === PLATFORMS.CLAUDE
+          ? 'currentColor'
+          : '#c4c7c5'} !important;
       cursor: pointer !important;
       display: flex !important;
       align-items: center !important;
@@ -1030,15 +1135,16 @@
 
   function ensureSettingsButtonPlacement() {
     if (!document.body) return;
-    const isGemini = CURRENT_PLATFORM === PLATFORMS.GEMINI;
+    const platform = CURRENT_PLATFORM;
+    const isGemini = platform === PLATFORMS.GEMINI;
     let btn = ensureSettingsButtonPlacement.element || document.getElementById(`${APPID}-settings-btn`);
 
     if (!btn) {
       btn = document.createElement('button');
       btn.id = `${APPID}-settings-btn`;
       btn.type = 'button';
-      btn.title = 'AI Theme Custom';
-      btn.setAttribute('aria-label', 'AI Theme Custom');
+      btn.title = t('aria_settings');
+      btn.setAttribute('aria-label', t('aria_settings'));
       mount(btn, createPaletteIcon());
       btn.onclick = (e) => {
         e.preventDefault();
@@ -1048,7 +1154,7 @@
     }
 
     ensureSettingsButtonPlacement.element = btn;
-    applyInlineButtonStyles(btn, isGemini);
+    applyInlineButtonStyles(btn, platform);
 
     if (isGemini) {
       btn.onmouseover = () => {
@@ -1083,7 +1189,7 @@
       return;
     }
 
-    const anchor = document.querySelector(CHATGPT_ANCHOR_SELECTOR);
+    const anchor = queryFirstElement(getAnchorSelectors());
     if (anchor && anchor instanceof HTMLElement) {
       if (!anchor.contains(btn)) anchor.prepend(btn);
     } else {
@@ -1098,27 +1204,19 @@
   let inputAreaPlacementObserver = null;
 
   function getInputAreaSelector() {
-    return CURRENT_PLATFORM === PLATFORMS.GEMINI
-      ? GEMINI_INPUT_AREA_SELECTORS[0]
-      : CHATGPT_INPUT_AREA_SELECTOR;
+    return getInputAreaSelectors()[0];
   }
 
   function getSettingsAnchorSelector() {
-    return CURRENT_PLATFORM === PLATFORMS.GEMINI
-      ? GEMINI_ANCHOR_SELECTORS[0]
-      : CHATGPT_ANCHOR_SELECTOR;
+    return getAnchorSelectors()[0];
   }
 
   function findSettingsAnchor() {
-    return CURRENT_PLATFORM === PLATFORMS.GEMINI
-      ? queryFirstElement(GEMINI_ANCHOR_SELECTORS)
-      : document.querySelector(CHATGPT_ANCHOR_SELECTOR);
+    return queryFirstElement(getAnchorSelectors());
   }
 
   function findInputArea() {
-    return CURRENT_PLATFORM === PLATFORMS.GEMINI
-      ? queryFirstElement(GEMINI_INPUT_AREA_SELECTORS)
-      : document.querySelector(CHATGPT_INPUT_AREA_SELECTOR);
+    return queryFirstElement(getInputAreaSelectors());
   }
 
   function isSettingsButtonPlacementValid() {
@@ -1267,7 +1365,7 @@
         h('strong', {
           id: `${APPID}-applied-theme-name`,
           style: 'color:#a6e3a1; margin-left:6px;',
-          text: activeTheme.name || 'Default'
+          text: activeTheme.name || t('default_theme')
         })
       ]),
       h('div', { style: 'display:flex; flex-direction:column; gap:8px; margin-bottom:16px;' }, [
@@ -1449,7 +1547,9 @@
     const labels = {
       active: t('active_theme'),
       apply: t('select_preset'),
-      restore: t('restore_native')
+      restore: t('restore_native'),
+      previewAssistant: t('preset_preview_assistant'),
+      previewUser: t('preset_preview_user')
     };
     const activePresetId = config.defaultSet?.id || '';
     const presetCards = BUILTIN_PRESETS.map((preset, index) => {
@@ -1473,7 +1573,7 @@
             h('h3', { style: 'margin:0; font-size:21px; color:#f5c2e7;', text: t('preset_modal_title') }),
             h('p', {
               style: 'margin:5px 0 0; color:#a6adc8; font-size:12px;',
-              text: `${BUILTIN_PRESETS.length - 1} themes · Mini chat preview`
+              text: t('preset_modal_subtitle', { count: BUILTIN_PRESETS.length - 1 })
             })
           ]),
           h('button', {
@@ -1569,11 +1669,11 @@
           renderEditor();
         }
       }, [
-        h('option', { value: '-1', selected: isDefault, text: 'Default Theme' }),
+        h('option', { value: '-1', selected: isDefault, text: t('default_theme_option') }),
         ...config.themeSets.map((tTheme, i) => h('option', {
           value: String(i),
           selected: activeThemeIndex === i,
-          text: tTheme.name || `Theme ${i + 1}`
+          text: tTheme.name || t('theme_name_fallback', { n: i + 1 })
         }))
       ]);
 
@@ -1588,7 +1688,7 @@
           onclick: () => {
             const newTheme = JSON.parse(JSON.stringify(BUILTIN_PRESETS[1]));
             newTheme.id = `${APPID}-theme-${Date.now()}`;
-            newTheme.name = `Theme ${config.themeSets.length + 1}`;
+            newTheme.name = t('theme_name_fallback', { n: config.themeSets.length + 1 });
             config.themeSets.push(newTheme);
             activeThemeIndex = config.themeSets.length - 1;
             renderEditor();
@@ -1789,7 +1889,7 @@
                 saveConfig();
                 modal.remove();
               } catch (e) {
-                alert('Syntax Error JSON: ' + e.message);
+                alert(t('json_syntax_error', { message: e.message }));
               }
             }
           })
