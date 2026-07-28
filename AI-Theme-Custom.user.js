@@ -70,6 +70,8 @@
   const IMAGE_MAX_WIDTH_BG = 1920;
   const IMAGE_MAX_HEIGHT_STANDING = 1080;
   const IMAGE_MAX_WIDTH_ICON = 512;
+  const DEFAULT_ASST_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#00ffcc"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-2h2zm0-4h-2V7h2z"/></svg>`;
+  const DEFAULT_USER_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ff007f"><path d="M12 2a10 10 0 1 0 22 12 10 10 0 0 0 12 2zm0 3a3 3 0 1 1-3 3 3 3 0 0 1 3-3zm0 14.2a7.2 7.2 0 0 1-6-3.2c.03-2 4-3.1 6-3.1s5.97 1.1 6 3.1a7.2 7.2 0 0 1-6 3.2z"/></svg>`;
 
   // --- Platform Detection ---
   const PLATFORMS = {
@@ -432,6 +434,33 @@
     };
   }
 
+  function buildBubbleSurfaceCss(actor, platform) {
+    if (!actor || typeof actor !== 'object') return '';
+    const declarations = [];
+    if (actor.bubbleBackgroundColor) declarations.push(`background-color: ${actor.bubbleBackgroundColor} !important;`);
+    if (Number.isFinite(actor.bubblePadding)) declarations.push(`padding: ${actor.bubblePadding}px !important;`);
+    if (Number.isFinite(actor.bubbleBorderRadius)) declarations.push(`border-radius: ${actor.bubbleBorderRadius}px !important;`);
+    if (platform === PLATFORMS.CHATGPT) {
+      declarations.push('max-width: 100% !important;');
+      declarations.push('overflow-x: auto !important;');
+    } else if (Number.isFinite(actor.bubbleMaxWidth)) {
+      declarations.push(`max-width: ${actor.bubbleMaxWidth}% !important;`);
+    }
+    if (actor.textColor && actor.bubbleBackgroundColor) {
+      declarations.push(`border: 1px solid color-mix(in srgb, ${actor.textColor} 24%, transparent) !important;`);
+    }
+    declarations.push('box-sizing: border-box !important;');
+    return declarations.join('\n        ');
+  }
+
+  function buildBubbleTextCss(actor) {
+    if (!actor || typeof actor !== 'object') return '';
+    const declarations = [];
+    if (actor.textColor) declarations.push(`color: ${actor.textColor} !important;`);
+    if (actor.font) declarations.push(`font-family: ${actor.font} !important;`);
+    return declarations.join('\n        ');
+  }
+
   function buildBubbleThemeCss(actor) {
     if (!actor || typeof actor !== 'object') return '';
     const declarations = [];
@@ -445,6 +474,104 @@
       declarations.push(`border: 1px solid color-mix(in srgb, ${actor.textColor} 24%, transparent) !important;`);
     }
     return declarations.join('\n        ');
+  }
+
+  function buildBubbleSelectors(platform) {
+    if (platform === PLATFORMS.GEMINI) {
+      return {
+        mode: 'combined',
+        user: '.user-query-bubble-with-background, user-query .query-text',
+        assistant: '.response-container-with-gpi, model-response .markdown, message-content.model-response-text',
+      };
+    }
+    if (platform === PLATFORMS.CLAUDE) {
+      return {
+        mode: 'combined',
+        user: '[data-testid="user-message"], [data-testid="human-message"], .font-user-message',
+        assistant: '.font-claude-response, .font-claude-response-body',
+      };
+    }
+    return {
+      mode: 'split',
+      userSurface: '[data-message-author-role="user"] div.user-message-bubble-color, [data-message-author-role="user"] div.overflow-hidden:has(img)',
+      assistantSurface: '[data-message-author-role="assistant"] div:has(> .markdown)',
+      userText: '[data-message-author-role="user"] .whitespace-pre-wrap',
+      assistantText: '[data-message-author-role="assistant"] .markdown',
+    };
+  }
+
+  function buildChatGptRichContentCss(selectors, actor) {
+    if (!actor?.textColor || !selectors?.assistantText) return '';
+    const textColor = actor.textColor;
+    const assistantText = selectors.assistantText;
+    return `
+      ${assistantText} {
+        overflow-x: auto !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+      }
+
+      ${assistantText} table {
+        display: block !important;
+        overflow-x: auto !important;
+        width: max-content !important;
+        max-width: 100% !important;
+        table-layout: auto !important;
+      }
+
+      ${assistantText} table,
+      ${assistantText} th,
+      ${assistantText} td {
+        border-color: color-mix(in srgb, ${textColor} 20%, transparent) !important;
+      }
+
+      ${assistantText} th {
+        background-color: color-mix(in srgb, ${textColor} 10%, transparent) !important;
+      }
+
+      ${assistantText} td {
+        background-color: color-mix(in srgb, ${textColor} 5%, transparent) !important;
+      }
+
+      ${assistantText} blockquote {
+        background-color: color-mix(in srgb, ${textColor} 5%, transparent) !important;
+        border-left-color: color-mix(in srgb, ${textColor} 30%, transparent) !important;
+      }`;
+  }
+
+  function buildBubbleRules(platform, user, asst) {
+    const selectors = buildBubbleSelectors(platform);
+    if (selectors.mode === 'split') {
+      return `
+      ${selectors.userSurface} {
+        ${buildBubbleSurfaceCss(user, platform)}
+        margin-left: auto !important;
+        margin-right: 0 !important;
+      }
+
+      ${selectors.assistantSurface} {
+        ${buildBubbleSurfaceCss(asst, platform)}
+        margin-left: 0 !important;
+        margin-right: auto !important;
+      }
+
+      ${selectors.userText} {
+        ${buildBubbleTextCss(user)}
+      }
+
+      ${selectors.assistantText} {
+        ${buildBubbleTextCss(asst)}
+      }
+      ${buildChatGptRichContentCss(selectors, asst)}`;
+    }
+    return `
+      ${selectors.user} {
+        ${buildBubbleThemeCss(user)}
+      }
+
+      ${selectors.assistant} {
+        ${buildBubbleThemeCss(asst)}
+      }`;
   }
 
   function buildInputThemeCss(platform, inputArea, userFont) {
@@ -722,8 +849,13 @@
   }
 
   function applyChatContentMaxWidth() {
-    if (!document.body) return;
+    // No-op: max-width is now embedded directly in the CSS string
+    // via buildChatContentMaxWidthCss(). Kept for backward compat.
+  }
+
+  function buildChatContentMaxWidthCss() {
     const userMaxWidth = config.options?.chat_content_max_width;
+    if (!Number.isFinite(userMaxWidth)) return '';
     const iconSize = config.options?.icon_size || 42;
     const finalMaxWidth = buildChatContentMaxWidthValue(
       userMaxWidth,
@@ -731,25 +863,15 @@
       themeHasStandingImage(getActiveTheme()),
       window.innerWidth
     );
+    if (!finalMaxWidth) return '';
 
-    if (!finalMaxWidth) {
-      document.body.classList.remove(CLASS_MAX_WIDTH_ACTIVE);
-      document.documentElement.style.removeProperty(CSS_VAR_CHAT_MAX_WIDTH);
-      return;
-    }
-
-    document.body.classList.add(CLASS_MAX_WIDTH_ACTIVE);
-    document.documentElement.style.setProperty(CSS_VAR_CHAT_MAX_WIDTH, finalMaxWidth);
-  }
-
-  function buildChatContentMaxWidthCss() {
     const chatSelector = getChatContentSelector();
     const scopedSelector = CURRENT_PLATFORM === PLATFORMS.CHATGPT
-      ? `body.${CLASS_MAX_WIDTH_ACTIVE} main ${chatSelector}`
-      : `body.${CLASS_MAX_WIDTH_ACTIVE} ${chatSelector}`;
+      ? `main ${chatSelector}`
+      : chatSelector;
     return `
       ${scopedSelector} {
-        max-width: var(${CSS_VAR_CHAT_MAX_WIDTH}) !important;
+        max-width: ${finalMaxWidth} !important;
         margin-inline: auto !important;
       }
     `;
@@ -787,6 +909,18 @@
     if (!role) return;
 
     let container = node.querySelector('.side-avatar-container');
+
+    // ChatGPT dedup: within the same turn (article), only one message should have an avatar.
+    // ChatGPT wraps thinking + response as separate [data-message-author-role] inside one article.
+    if (CURRENT_PLATFORM === PLATFORMS.CHATGPT && !container) {
+      const turnGroup = node.closest('article')
+        || node.closest('[class*="group/turn"]')
+        || node.closest('[data-testid*="conversation-turn"]');
+      if (turnGroup && turnGroup.querySelector('.side-avatar-container')) {
+        return;
+      }
+    }
+
     if (!container) {
       container = document.createElement('div');
       container.className = 'side-avatar-container';
@@ -807,6 +941,18 @@
       nameDiv.style.display = 'block';
     } else {
       nameDiv.style.display = 'none';
+    }
+
+    // Directly apply icon background-image on the element for ChatGPT compatibility
+    // (CSS variables on :root may be stripped/overridden by ChatGPT's own styles)
+    const iconSpan = container.querySelector('.side-avatar-icon');
+    if (iconSpan) {
+      const iconUrl = role === 'user'
+        ? getFormattedIconUrl(actor?.icon, DEFAULT_USER_SVG)
+        : getFormattedIconUrl(actor?.icon, DEFAULT_ASST_SVG);
+      if (iconUrl) {
+        iconSpan.style.setProperty('background-image', `url("${iconUrl}")`, 'important');
+      }
     }
   }
 
@@ -874,11 +1020,8 @@
     const inp = activeTheme.inputArea || {};
     const opts = config.options || {};
 
-    const defaultAsstSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#00ffcc"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-2h2zm0-4h-2V7h2z"/></svg>`;
-    const defaultUserSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ff007f"><path d="M12 2a10 10 0 1 0 22 12 10 10 0 0 0 12 2zm0 3a3 3 0 1 1-3 3 3 3 0 0 1 3-3zm0 14.2a7.2 7.2 0 0 1-6-3.2c.03-2 4-3.1 6-3.1s5.97 1.1 6 3.1a7.2 7.2 0 0 1-6 3.2z"/></svg>`;
-
-    const userIconUrl = getFormattedIconUrl(user.icon, defaultUserSvg);
-    const asstIconUrl = getFormattedIconUrl(asst.icon, defaultAsstSvg);
+    const userIconUrl = getFormattedIconUrl(user.icon, DEFAULT_USER_SVG);
+    const asstIconUrl = getFormattedIconUrl(asst.icon, DEFAULT_ASST_SVG);
 
     const iconSize = opts.icon_size || 42;
 
@@ -965,19 +1108,27 @@
         box-sizing: border-box !important;
       }
 
+      /* ChatGPT Specific Margin space for side avatars */
+      [data-message-author-role="user"], [data-message-author-role="assistant"], .user-turn, .agent-turn {
+        margin-left: ${iconSize + 16}px !important;
+        margin-right: ${iconSize + 16}px !important;
+        width: calc(100% - ${(iconSize + 16) * 2}px) !important;
+        box-sizing: border-box !important;
+      }
+
+      /* ChatGPT: hide duplicate avatars within the same turn (CSS safety net) */
+      article [data-message-author-role] ~ [data-message-author-role] .side-avatar-container,
+      article [data-message-author-role] ~ * [data-message-author-role] .side-avatar-container {
+        display: none !important;
+      }
+
       /* Hide native Gemini icons */
       user-query gmat-icon, user-query .user-icon, model-response gmat-icon[data-mat-icon-name="spark"], model-response .model-avatar-container {
         display: none !important;
       }
 
       /* Bubble Customization */
-      .user-query-bubble-with-background, user-query .query-text, [data-testid="user-message"], [data-testid="human-message"], .font-user-message {
-        ${buildBubbleThemeCss(user)}
-      }
-
-      .response-container-with-gpi, model-response .markdown, message-content.model-response-text, .font-claude-response, .font-claude-response-body, .standard-markdown {
-        ${buildBubbleThemeCss(asst)}
-      }
+      ${buildBubbleRules(CURRENT_PLATFORM, user, asst)}
     `;
 
     // Window Background — platform-scoped so Tailwind flex utilities inside composer stay untouched
