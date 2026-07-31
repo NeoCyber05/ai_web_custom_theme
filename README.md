@@ -9,14 +9,20 @@ A professional suite of two standalone userscripts designed to enhance productiv
 
 ---
 
+## Demo
+
+![Demo preview](./demo_pic.jpg)
+
+---
+
 ## Overview
 
 This repository contains two independent scripts. You may install either script individually or both simultaneously based on your workflow needs.
 
-| Script | Supported Platforms | Primary Function | Installation Link |
-| :--- | :--- | :--- | :--- |
-| **AI Theme Custom** | ChatGPT, Gemini | Full UI customization, preset themes, and chat navigation | [AI-Theme-Custom.user.js](./AI-Theme-Custom.user.js) ([Guide](#installation-guide)) |
-| **AI Prompt Deck** | ChatGPT, Gemini, Claude | 1-Click prompt snippet manager and category tool | [AI-Prompt-Deck.user.js](./AI-Prompt-Deck.user.js) ([Guide](#installation-guide)) |
+| Script | Supported Platforms | Primary Function |
+| :--- | :--- | :--- |
+| **AI Theme Custom** | ChatGPT, Gemini | Full UI customization, preset themes, and chat navigation |
+| **AI Prompt Deck** | ChatGPT, Gemini, Claude | 1-Click prompt snippet manager and category tool |
 
 ---
 
@@ -49,7 +55,7 @@ A fast prompt snippet manager for ChatGPT, Google Gemini, and Claude.
 
 ---
 
-## Installation Guide
+## Guide
 
 Follow these simple steps to install and enable the scripts on your browser:
 
