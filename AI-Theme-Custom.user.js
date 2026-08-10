@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         AI Theme Custom
-// @version      2.7.0
+// @version      2.7.2
 // @license      MIT
 // @description  Full interface customization engine for ChatGPT, Gemini, and Claude (Based on AI-UX-Customizer architecture): Custom themes, preset picker, EN/VI multilingual support, custom avatars & icons, standing images, page background images/colors, and input bar settings button.
 // @icon         data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 -960 960 960' width='24px' fill='%235985E1'%3E%3Cpath d='M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 32.5-156t88-127Q256-817 330-848.5T488-880q80 0 151 27.5t124.5 76q53.5 48.5 85 115T880-518q0 115-70 176.5T640-280h-74q-9 0-12.5 5t-3.5 11q0 12 15 34.5t15 51.5q0 50-27.5 74T480-80Zm0-400Zm-220 40q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120-160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm200 0q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120 160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17ZM480-160q9 0 14.5-5t5.5-13q0-14-15-33t-15-57q0-42 29-67t71-25h70q66 0 113-38.5T800-518q0-121-92.5-201.5T488-800q-136 0-232 93t-96 227q0 133 93.5 226.5T480-160Z'/%3E%3C/svg%3E
@@ -45,7 +45,10 @@
     'input-container',
     '.input-area-container'
   ];
-  const CHATGPT_ANCHOR_SELECTOR = 'form[data-type="unified-composer"] div[class*="[grid-area:trailing]"]';
+  const CHATGPT_ANCHOR_SELECTORS = [
+    'form[data-type="unified-composer"] div[class*="[grid-area:trailing]"]',
+    'form[data-type="unified-composer"] div[class*="trailing"]'
+  ];
   const CHATGPT_INPUT_AREA_SELECTOR = 'form[data-type="unified-composer"]';
   const CHATGPT_CHAT_CONTENT_SELECTOR = ':is(.group\\/turn-messages, div[class*="--thread-content-max-width"].grid)';
   const GEMINI_CHAT_CONTENT_SELECTOR = '.conversation-container';
@@ -106,7 +109,7 @@
       case PLATFORMS.CLAUDE:
         return CLAUDE_ANCHOR_SELECTORS;
       default:
-        return [CHATGPT_ANCHOR_SELECTOR];
+        return CHATGPT_ANCHOR_SELECTORS;
     }
   }
 
@@ -1245,7 +1248,17 @@
 
   function applyFloatingButtonStyles(btn) {
     btn.style.setProperty('position', 'fixed', 'important');
-    btn.style.setProperty('bottom', '20px', 'important');
+    let bottom = 20;
+    if (CURRENT_PLATFORM === PLATFORMS.CHATGPT) {
+      const composer = document.querySelector('form[data-type="unified-composer"]');
+      if (composer instanceof HTMLElement) {
+        const rect = composer.getBoundingClientRect();
+        if (rect && Number.isFinite(rect.top) && rect.top > 0) {
+          bottom = Math.max(20, Math.round(window.innerHeight - rect.top) + 12);
+        }
+      }
+    }
+    btn.style.setProperty('bottom', `${bottom}px`, 'important');
     btn.style.setProperty('right', '20px', 'important');
     btn.style.setProperty('z-index', '2147483647', 'important');
     btn.style.setProperty('background', 'rgba(6, 182, 212, 0.9)', 'important');
@@ -1341,11 +1354,12 @@
     }
 
     const anchor = queryFirstElement(getAnchorSelectors());
-    if (anchor && anchor instanceof HTMLElement) {
-      if (!anchor.contains(btn)) anchor.prepend(btn);
-    } else {
+    const forceFloating = CURRENT_PLATFORM === PLATFORMS.CHATGPT || !(anchor instanceof HTMLElement);
+    if (forceFloating) {
       if (!document.body.contains(btn)) document.body.appendChild(btn);
       applyFloatingButtonStyles(btn);
+    } else {
+      if (!anchor.contains(btn)) anchor.prepend(btn);
     }
   }
 
@@ -2065,6 +2079,7 @@
     chatWidthResizeFrame = requestAnimationFrame(() => {
       chatWidthResizeFrame = 0;
       applyChatContentMaxWidth();
+      scheduleSettingsButtonPlacement();
     });
   }
 
