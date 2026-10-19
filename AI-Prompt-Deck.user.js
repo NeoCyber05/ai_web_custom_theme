@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         AI Prompt Deck
-// @version      2.0.1
+// @version      2.0.2
 // @license      MIT
 // @description  1-Click Prompt & Text Snippet manager for ChatGPT, Gemini, and Claude. Features EN/VI multilingual support, category manager, and JSON import/export.
 // @icon         data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff9800'%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z'/%3E%3C/svg%3E
@@ -155,14 +155,57 @@
     setTimeout(() => { toast.style.opacity = '0'; }, 2000);
   }
 
+  // --- Trusted Types & DOM Safety Helper ---
+  let trustedPolicy = null;
+  function getTrustedPolicy() {
+    if (trustedPolicy) return trustedPolicy;
+    if (typeof window !== 'undefined' && window.trustedTypes && window.trustedTypes.createPolicy) {
+      try {
+        trustedPolicy = window.trustedTypes.createPolicy(`${APPID}-policy`, {
+          createHTML: (s) => s
+        });
+      } catch (e) {
+        try {
+          trustedPolicy = window.trustedTypes.createPolicy('default', {
+            createHTML: (s) => s
+          });
+        } catch (_) {
+          trustedPolicy = window.trustedTypes.defaultPolicy;
+        }
+      }
+    }
+    return trustedPolicy;
+  }
+
+  function setSafeHTML(el, html) {
+    const policy = getTrustedPolicy();
+    if (policy && typeof policy.createHTML === 'function') {
+      try {
+        el.innerHTML = policy.createHTML(html);
+        return;
+      } catch (_) {}
+    }
+    try {
+      el.innerHTML = html;
+    } catch (_) {
+      try {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        el.replaceChildren(...doc.body.childNodes);
+      } catch (e) {
+        el.textContent = html;
+      }
+    }
+  }
+
   // --- Insert Text into Textarea ---
   function insertTextToInput(text) {
     const selectors = [
+      '#prompt-textarea',
+      'div.ProseMirror#prompt-textarea',
       'rich-textarea .ql-editor',
       'rich-textarea p',
       '.ql-editor',
-      '#prompt-textarea',
-      'div.ProseMirror#prompt-textarea',
+      'fieldset div.ProseMirror',
       'textarea',
       '[contenteditable="true"]',
       'div[role="textbox"]',
@@ -195,42 +238,51 @@
       targetEl.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
       targetEl.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
     } else if (targetEl.isContentEditable || targetEl.classList.contains('ql-editor')) {
+      let execSucceeded = false;
       try {
-        const selection = window.getSelection();
-        if (selection.rangeCount > 0 && selection.anchorNode && targetEl.contains(selection.anchorNode)) {
-          const range = selection.getRangeAt(0);
-          range.deleteContents();
-          const textNode = document.createTextNode(text);
-          range.insertNode(textNode);
-          range.collapse(false);
-          selection.removeAllRanges();
-          selection.addRange(range);
-        } else {
-          const p = targetEl.querySelector('p') || targetEl;
-          if (p.innerHTML === '<br>' || p.innerHTML === '') {
-            p.textContent = text;
-          } else {
-            p.textContent += text;
-          }
-        }
-      } catch (e) {
-        const p = targetEl.querySelector('p') || targetEl;
-        p.textContent += text;
+        execSucceeded = document.execCommand('insertText', false, text);
+      } catch (_) {
+        execSucceeded = false;
       }
 
-      try {
-        const inputEvent = new InputEvent('input', {
-          bubbles: true,
-          cancelable: true,
-          inputType: 'insertText',
-          data: text,
-          composed: true
-        });
-        targetEl.dispatchEvent(inputEvent);
-      } catch (e) {
-        targetEl.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+      if (!execSucceeded) {
+        try {
+          const selection = window.getSelection();
+          if (selection.rangeCount > 0 && selection.anchorNode && targetEl.contains(selection.anchorNode)) {
+            const range = selection.getRangeAt(0);
+            range.deleteContents();
+            const textNode = document.createTextNode(text);
+            range.insertNode(textNode);
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+          } else {
+            const p = targetEl.querySelector('p') || targetEl;
+            if (p.innerHTML === '<br>' || p.innerHTML === '') {
+              p.textContent = text;
+            } else {
+              p.textContent += text;
+            }
+          }
+        } catch (e) {
+          const p = targetEl.querySelector('p') || targetEl;
+          p.textContent += text;
+        }
+
+        try {
+          const inputEvent = new InputEvent('input', {
+            bubbles: true,
+            cancelable: true,
+            inputType: 'insertText',
+            data: text,
+            composed: true
+          });
+          targetEl.dispatchEvent(inputEvent);
+        } catch (e) {
+          targetEl.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+        }
+        targetEl.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
       }
-      targetEl.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
     }
 
     showToast(t('inserted_toast'));
@@ -245,7 +297,32 @@
 
     const btn = document.createElement('button');
     btn.id = `${APPID}-toggle-btn`;
-    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y1="13"/><line x1="16" y1="17" x2="8" y1="17"/><line x1="10" y1="9" x2="8" y1="9"/></svg>`;
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '22');
+    svg.setAttribute('height', '22');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '2');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    svg.style.filter = 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))';
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z');
+    const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+    polyline.setAttribute('points', '14 2 14 8 20 8');
+    const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line1.setAttribute('x1', '16'); line1.setAttribute('y1', '13'); line1.setAttribute('x2', '8'); line1.setAttribute('y2', '13');
+    const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line2.setAttribute('x1', '16'); line2.setAttribute('y1', '17'); line2.setAttribute('x2', '8'); line2.setAttribute('y2', '17');
+    const line3 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line3.setAttribute('x1', '10'); line3.setAttribute('y1', '9'); line3.setAttribute('x2', '8'); line3.setAttribute('y2', '9');
+
+    svg.append(path, polyline, line1, line2, line3);
+    btn.appendChild(svg);
+
     btn.title = 'AI Prompt Deck';
     btn.style.cssText = `
       position: fixed !important;
@@ -335,7 +412,7 @@
       </button>
     `).join('');
 
-    quickBarEl.innerHTML = `
+    setSafeHTML(quickBarEl, `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <span style="font-weight:bold; font-size:14px; color:#ffb74d;">${t('panel_title')}</span>
         <button id="${APPID}-lang-btn" style="background:#313244; color:#a6adc8; border:none; padding:4px 8px; border-radius:6px; cursor:pointer; font-size:11px;">
@@ -355,7 +432,7 @@
           ${t('edit_btn')}
         </button>
       </div>
-    `;
+    `);
 
     quickBarEl.style.display = 'block';
 
@@ -391,7 +468,7 @@
       document.body.appendChild(modal);
     }
 
-    modal.innerHTML = `
+    setSafeHTML(modal, `
       <div style="background:#181825; color:#cdd6f4; width:450px; max-width:92vw; border-radius:12px; padding:18px; border:1px solid rgba(255,152,0,0.3); font-family:system-ui, sans-serif;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
           <h4 style="margin:0; color:#ffb74d;">${existingItem ? t('edit_btn') : t('add_btn')}</h4>
@@ -421,7 +498,7 @@
           </button>
         </div>
       </div>
-    `;
+    `);
 
     document.getElementById(`${APPID}-close-edit`).onclick = () => modal.remove();
 
@@ -479,7 +556,7 @@
         </div>
       `).join('');
 
-      modal.innerHTML = `
+      setSafeHTML(modal, `
         <div style="background:#181825; color:#cdd6f4; width:520px; max-width:92vw; max-height:80vh; border-radius:12px; padding:18px; overflow-y:auto; border:1px solid rgba(255,152,0,0.3); font-family:system-ui, sans-serif;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
             <h4 style="margin:0; color:#ffb74d;">${t('edit_btn')}</h4>
@@ -490,7 +567,7 @@
             ${itemsHtml}
           </div>
         </div>
-      `;
+      `);
 
       document.getElementById(`${APPID}-close-manage`).onclick = () => modal.remove();
 
