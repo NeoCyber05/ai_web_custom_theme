@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         AI Theme Custom
-// @version      2.7.3
+// @version      2.8.0
 // @license      MIT
 // @description  Full interface customization engine for ChatGPT, Gemini, and Claude (Based on AI-UX-Customizer architecture): Custom themes, preset picker, EN/VI multilingual support, custom avatars & icons, standing images, page background images/colors, and input bar settings button.
 // @icon         data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 -960 960 960' width='24px' fill='%235985E1'%3E%3Cpath d='M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 32.5-156t88-127Q256-817 330-848.5T488-880q80 0 151 27.5t124.5 76q53.5 48.5 85 115T880-518q0 115-70 176.5T640-280h-74q-9 0-12.5 5t-3.5 11q0 12 15 34.5t15 51.5q0 50-27.5 74T480-80Zm0-400Zm-220 40q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120-160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm200 0q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120 160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17ZM480-160q9 0 14.5-5t5.5-13q0-14-15-33t-15-57q0-42 29-67t71-25h70q66 0 113-38.5T800-518q0-121-92.5-201.5T488-800q-136 0-232 93t-96 227q0 133 93.5 226.5T480-160Z'/%3E%3C/svg%3E
@@ -46,10 +46,9 @@
     '.input-area-container'
   ];
   const CHATGPT_ANCHOR_SELECTORS = [
+    '[data-composer-body] [class*="ComposerLayoutFooter-"] > div:last-child > div.flex:has(button)',
     'form[data-type="unified-composer"] div[class*="[grid-area:trailing]"]',
-    'form[data-type="unified-composer"] div[class*="trailing"]',
     'form:has(#prompt-textarea) div[class*="[grid-area:trailing]"]',
-    'form:has(#prompt-textarea) div[class*="trailing"]',
     'form:has(#prompt-textarea) div:has(> button[data-testid*="send"])',
     'form:has(#prompt-textarea) div:has(> button[data-testid="fruitjuice-send-button"])',
     'form:has(#prompt-textarea) div:has(> button[aria-label*="Send"])',
@@ -57,18 +56,17 @@
     '#composer-background div[class*="[grid-area:trailing]"]',
     '#composer-background div:has(> button[data-testid*="send"])',
     '#composer-background div:has(> button[aria-label*="Send"])',
-    'div:has(> #prompt-textarea) div:has(> button[data-testid*="send"])',
-    'div[class*="[grid-area:trailing]"]'
+    'div:has(> #prompt-textarea) div:has(> button[data-testid*="send"])'
   ];
   const CHATGPT_INPUT_AREA_SELECTOR = 'form[data-type="unified-composer"]';
   const CHATGPT_INPUT_AREA_SELECTORS = [
+    '[data-composer-body]',
     'form[data-type="unified-composer"]',
     'form:has(#prompt-textarea)',
-    '#composer-background',
-    'form:has([contenteditable="true"])',
-    'form'
+    '#composer-background'
   ];
-  const CHATGPT_CHAT_CONTENT_SELECTOR = ':is(.group\\/turn-messages, div[class*="--thread-content-max-width"].grid)';
+  const CHATGPT_CHAT_CONTENT_SELECTOR = ':is(.group\\/turn-messages, div[class*="--thread-content-max-width"].grid, div[class*="transcriptContent-"])';
+  const chatGptMessages = getChatGptMessageSelectors();
   const GEMINI_CHAT_CONTENT_SELECTOR = '.conversation-container';
   const CLAUDE_ANCHOR_SELECTORS = [
     'fieldset:has([data-testid="chat-input"]) div.relative.flex.gap-2.w-full.items-center > div.flex-row',
@@ -82,7 +80,7 @@
   const CLAUDE_CHAT_CONTENT_SELECTOR = ':is([data-testid="conversation-turn-list"], main .mx-auto)';
   const BASE_MESSAGE_SELECTOR = 'user-query, model-response, [data-message-author-role="user"], [data-message-author-role="assistant"], .user-turn, .agent-turn';
   const CLAUDE_MESSAGE_SELECTOR = '[data-testid="user-message"], [data-testid="human-message"], [data-testid="assistant-turn"], [data-testid="assistant-message"]';
-  const MESSAGE_SELECTOR = `${BASE_MESSAGE_SELECTOR}, ${CLAUDE_MESSAGE_SELECTOR}`;
+  const MESSAGE_SELECTOR = `${BASE_MESSAGE_SELECTOR}, ${CLAUDE_MESSAGE_SELECTOR}, ${chatGptMessages.user}, ${chatGptMessages.assistant}`;
   const CSS_VAR_CHAT_MAX_WIDTH = `--${APPID}-chat-content-max-width`;
   const CLASS_MAX_WIDTH_ACTIVE = `${APPID}-max-width-active`;
   const CHAT_MAX_WIDTH_MIN = 30;
@@ -190,9 +188,8 @@
       save: 'Lưu',
       close: 'Đóng',
       reset: 'Khôi phục mặc định',
-      preset_modal_title: 'Thư Viện Giao Diện Có Sẵn',
-      preset_modal_subtitle: '{count} giao diện · Xem trước mini',
-      select_preset: '⚡ Chọn giao diện',
+      preset_modal_title: 'Giao diện có sẵn',
+      select_preset: 'Áp dụng',
       preset_applied: 'Đã áp dụng giao diện thành công!',
       active_theme: 'Đang dùng',
       restore_native: 'Khôi phục giao diện gốc',
@@ -247,9 +244,8 @@
       save: 'Save',
       close: 'Close',
       reset: 'Reset Defaults',
-      preset_modal_title: 'Built-in Preset Themes Library',
-      preset_modal_subtitle: '{count} themes · Mini chat preview',
-      select_preset: '⚡ Select Theme',
+      preset_modal_title: 'Preset themes',
+      select_preset: 'Apply',
       preset_applied: 'Theme successfully applied!',
       active_theme: 'Active',
       restore_native: 'Restore website appearance',
@@ -497,6 +493,18 @@
     return declarations.join('\n        ');
   }
 
+  function getChatGptMessageSelectors() {
+    const transcript = '[class*="transcriptContent-"]';
+    const markdown = '[class*="MarkdownRoot-"]';
+    const response = '[class*="DilResponseRoot-"]';
+    return {
+      user: `${transcript} .group\\/user-message:has(> .bg-user-message)`,
+      assistant: `${transcript} div:has(> ${markdown} ${response})`,
+      userBubble: `${transcript} .bg-user-message`,
+      assistantBubble: `${transcript} ${markdown}:has(${response})`
+    };
+  }
+
   function buildBubbleSelectors(platform) {
     if (platform === PLATFORMS.GEMINI) {
       return {
@@ -512,12 +520,13 @@
         assistant: '.font-claude-response, .font-claude-response-body',
       };
     }
+    const { userBubble, assistantBubble } = getChatGptMessageSelectors();
     return {
       mode: 'split',
-      userSurface: ':is([data-message-author-role="user"] div.user-message-bubble-color, [data-message-author-role="user"] div:has(> .whitespace-pre-wrap), [data-message-author-role="user"] div.overflow-hidden:has(img))',
-      assistantSurface: ':is([data-message-author-role="assistant"] div:has(> .markdown), [data-message-author-role="assistant"] div:has(> .prose), [data-message-author-role="assistant"] .markdown)',
-      userText: '[data-message-author-role="user"] .whitespace-pre-wrap',
-      assistantText: '[data-message-author-role="assistant"] .markdown',
+      userSurface: `:is([data-message-author-role="user"] div.user-message-bubble-color, [data-message-author-role="user"] div:has(> .whitespace-pre-wrap), [data-message-author-role="user"] div.overflow-hidden:has(img), ${userBubble})`,
+      assistantSurface: `:is([data-message-author-role="assistant"] div:has(> .markdown), [data-message-author-role="assistant"] div:has(> .prose), [data-message-author-role="assistant"] .markdown, ${assistantBubble})`,
+      userText: `:is([data-message-author-role="user"] .whitespace-pre-wrap, ${userBubble})`,
+      assistantText: `:is([data-message-author-role="assistant"] .markdown, ${assistantBubble})`,
     };
   }
 
@@ -607,8 +616,8 @@
             text: 'div.ProseMirror[data-testid="chat-input"]'
           }
         : {
-            background: ':is(form[data-type="unified-composer"] div[style*="border-radius"], form:has(#prompt-textarea) div[style*="border-radius"], form:has(#prompt-textarea), #composer-background)',
-            text: ':is(div.ProseMirror#prompt-textarea, #prompt-textarea)'
+            background: ':is([data-composer-body], form[data-type="unified-composer"] div[style*="border-radius"], form:has(#prompt-textarea) div[style*="border-radius"], form:has(#prompt-textarea), #composer-background)',
+            text: ':is([data-composer-input] .ProseMirror, div.ProseMirror#prompt-textarea, #prompt-textarea, #pending-home-input)'
           };
     const declarations = [];
     if (inputArea?.backgroundColor) {
@@ -637,15 +646,6 @@
       'aria-pressed': isActive ? 'true' : 'false'
     }, [
       h('span', { className: `${APPID}-preset-preview`, style: `background:${palette.window};` }, [
-        h('span', { className: `${APPID}-preset-heading` }, [
-          h('strong', { text: name }),
-          isActive ? h('span', { className: `${APPID}-active-badge`, text: labels.active }) : null
-        ]),
-        h('span', { className: `${APPID}-palette` }, [
-          h('i', { className: `${APPID}-palette-dot`, style: `background:${palette.window};` }),
-          h('i', { className: `${APPID}-palette-dot`, style: `background:${palette.assistantText};` }),
-          h('i', { className: `${APPID}-palette-dot`, style: `background:${palette.userText};` })
-        ]),
         h('span', {
           className: `${APPID}-preview-assistant`,
           style: `color:${palette.assistantText};background:${palette.assistantBubble};`,
@@ -660,6 +660,17 @@
           className: `${APPID}-preview-input`,
           style: `background:${palette.input};`
         })
+      ]),
+      h('span', { className: `${APPID}-preset-details` }, [
+        h('span', { className: `${APPID}-preset-heading` }, [
+          h('strong', { text: name }),
+          isActive ? h('span', { className: `${APPID}-active-badge`, text: labels.active }) : null
+        ]),
+        h('span', { className: `${APPID}-palette`, 'aria-hidden': 'true' }, [
+          h('i', { className: `${APPID}-palette-dot`, style: `background:${palette.window};` }),
+          h('i', { className: `${APPID}-palette-dot`, style: `background:${palette.assistantBubble};` }),
+          h('i', { className: `${APPID}-palette-dot`, style: `background:${palette.userBubble};` })
+        ])
       ]),
       h('span', { className: `${APPID}-preset-action`, text: actionLabel })
     ]);
@@ -679,103 +690,103 @@
     },
     {
       id: 'preset-cyberpunk-neon',
-      name: 'Cyberpunk Neon ⚡',
+      name: 'Cyberpunk Neon',
       matchPatterns: ['/\\[cyberpunk\\]/i'],
       urlPatterns: [],
-      assistant: { name: 'Cyber AI', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2362f6e8"><path d="M12 2 4 6v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V6l-8-4Zm-1 14-4-4 1.4-1.4L11 13.2l4.6-4.6L17 10l-6 6Z"/></svg>`, standingImageUrl: null, textColor: '#62f6e8', font: "'Cascadia Code', 'Fira Code', monospace", bubbleBackgroundColor: 'rgba(8, 21, 32, 0.94)', bubblePadding: 12, bubbleBorderRadius: 14, bubbleMaxWidth: 92 },
-      user: { name: 'NetRunner', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ff8bd5"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#ff8bd5', font: "'Cascadia Code', 'Fira Code', monospace", bubbleBackgroundColor: 'rgba(43, 12, 42, 0.94)', bubblePadding: 12, bubbleBorderRadius: 14, bubbleMaxWidth: 82 },
-      window: { backgroundColor: '#070812', backgroundImageUrl: null },
-      inputArea: { backgroundColor: '#111426', textColor: '#dffcff' }
+      assistant: { name: 'Cyber AI', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#5ed9cc"><path d="M12 2 4 6v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V6l-8-4Zm-1 14-4-4 1.4-1.4L11 13.2l4.6-4.6L17 10l-6 6Z"/></svg>`, standingImageUrl: null, textColor: '#d7f0ec', font: "system-ui, sans-serif", bubbleBackgroundColor: '#1b2834', bubblePadding: 12, bubbleBorderRadius: 14, bubbleMaxWidth: 92 },
+      user: { name: 'NetRunner', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#e8a9d0"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#f0ddeb', font: "system-ui, sans-serif", bubbleBackgroundColor: '#212d47', bubblePadding: 12, bubbleBorderRadius: 14, bubbleMaxWidth: 82 },
+      window: { backgroundColor: '#101822', backgroundImageUrl: null },
+      inputArea: { backgroundColor: '#1a2531', textColor: '#eaf5f9' }
     },
     {
       id: 'preset-sakura-blossom',
-      name: 'Sakura Blossom 🌸',
+      name: 'Sakura Blossom',
       matchPatterns: ['/\\[sakura\\]/i'],
       urlPatterns: [],
-      assistant: { name: 'Sakura AI', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffb3c7"><path d="M12 3c1.5-2 5-1 5 2 3-1 5.5 2 3.5 4.5 2.5 1.5 1.5 5-1.5 5.5.5 3-3 4.5-5 2.5-2 2.5-5.5.5-5-2.5-3-.5-4-4-1.5-5.5C4.5 7 7 4 10 5c0-1 .7-1.7 2-2Zm0 6a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg>`, standingImageUrl: null, textColor: '#ffe5ed', font: "'Segoe UI', 'Quicksand', sans-serif", bubbleBackgroundColor: 'rgba(56, 35, 46, 0.94)', bubblePadding: 11, bubbleBorderRadius: 18, bubbleMaxWidth: 90 },
-      user: { name: 'Traveler', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffd2df"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#ffd2df', font: "'Segoe UI', 'Quicksand', sans-serif", bubbleBackgroundColor: 'rgba(74, 41, 56, 0.94)', bubblePadding: 11, bubbleBorderRadius: 18, bubbleMaxWidth: 80 },
-      window: { backgroundColor: '#1b1117', backgroundImageUrl: null },
-      inputArea: { backgroundColor: '#2a1a22', textColor: '#fff1f5' }
+      assistant: { name: 'Sakura AI', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#eeabc0"><path d="M12 3c1.5-2 5-1 5 2 3-1 5.5 2 3.5 4.5 2.5 1.5 1.5 5-1.5 5.5.5 3-3 4.5-5 2.5-2 2.5-5.5.5-5-2.5-3-.5-4-4-1.5-5.5C4.5 7 7 4 10 5c0-1 .7-1.7 2-2Zm0 6a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg>`, standingImageUrl: null, textColor: '#f5e6eb', font: "system-ui, sans-serif", bubbleBackgroundColor: '#34272d', bubblePadding: 11, bubbleBorderRadius: 18, bubbleMaxWidth: 90 },
+      user: { name: 'Traveler', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#f3c4d0"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#fbe1e9', font: "system-ui, sans-serif", bubbleBackgroundColor: '#50323e', bubblePadding: 11, bubbleBorderRadius: 18, bubbleMaxWidth: 80 },
+      window: { backgroundColor: '#21191d', backgroundImageUrl: null },
+      inputArea: { backgroundColor: '#3a2a31', textColor: '#f8eaee' }
     },
     {
       id: 'preset-emerald-forest',
-      name: 'Emerald Forest 🌲',
+      name: 'Emerald Forest',
       matchPatterns: ['/\\[emerald\\]/i'],
       urlPatterns: [],
-      assistant: { name: 'Forest Spirit', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%237ee2a8"><path d="m12 2-5 7h3l-5 7h5v6h4v-6h5l-5-7h3l-5-7Z"/></svg>`, standingImageUrl: null, textColor: '#b7f7cf', font: "'Segoe UI', system-ui, sans-serif", bubbleBackgroundColor: 'rgba(18, 53, 34, 0.94)', bubblePadding: 11, bubbleBorderRadius: 14, bubbleMaxWidth: 91 },
-      user: { name: 'Ranger', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23a7f3d0"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#a7f3d0', font: "'Segoe UI', system-ui, sans-serif", bubbleBackgroundColor: 'rgba(25, 69, 45, 0.94)', bubblePadding: 11, bubbleBorderRadius: 14, bubbleMaxWidth: 81 },
-      window: { backgroundColor: '#08150f', backgroundImageUrl: null },
-      inputArea: { backgroundColor: '#10261a', textColor: '#e7fff0' }
+      assistant: { name: 'Forest Spirit', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#87cbaa"><path d="m12 2-5 7h3l-5 7h5v6h4v-6h5l-5-7h3l-5-7Z"/></svg>`, standingImageUrl: null, textColor: '#e4f0e7', font: "system-ui, sans-serif", bubbleBackgroundColor: '#21332a', bubblePadding: 11, bubbleBorderRadius: 14, bubbleMaxWidth: 91 },
+      user: { name: 'Ranger', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#b6dec4"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#e1f4e9', font: "system-ui, sans-serif", bubbleBackgroundColor: '#2b4739', bubblePadding: 11, bubbleBorderRadius: 14, bubbleMaxWidth: 81 },
+      window: { backgroundColor: '#131f1a', backgroundImageUrl: null },
+      inputArea: { backgroundColor: '#24382e', textColor: '#ecf7ef' }
     },
     {
       id: 'preset-sunset-vaporwave',
-      name: 'Sunset Vaporwave 🌅',
+      name: 'Sunset Vaporwave',
       matchPatterns: ['/\\[sunset\\]/i', '/\\[vaporwave\\]/i'],
       urlPatterns: [],
-      assistant: { name: 'Synthwave AI', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffd18a"><path d="M3 17h18v2H3v-2Zm2-3h14l-2-3-2 2-3-5-3 5-2-2-2 3Z"/></svg>`, standingImageUrl: null, textColor: '#ffd18a', font: "'Trebuchet MS', 'Outfit', sans-serif", bubbleBackgroundColor: 'rgba(60, 29, 79, 0.94)', bubblePadding: 12, bubbleBorderRadius: 17, bubbleMaxWidth: 91 },
-      user: { name: 'Dreamer', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ff9ebd"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#ff9ebd', font: "'Trebuchet MS', 'Outfit', sans-serif", bubbleBackgroundColor: 'rgba(84, 32, 62, 0.94)', bubblePadding: 12, bubbleBorderRadius: 17, bubbleMaxWidth: 81 },
-      window: { backgroundColor: '#160b25', backgroundImageUrl: null },
-      inputArea: { backgroundColor: '#27113c', textColor: '#fff1d8' }
+      assistant: { name: 'Synthwave AI', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#f0b182"><path d="M3 17h18v2H3v-2Zm2-3h14l-2-3-2 2-3-5-3 5-2-2-2 3Z"/></svg>`, standingImageUrl: null, textColor: '#f7e9e6', font: "system-ui, sans-serif", bubbleBackgroundColor: '#392933', bubblePadding: 12, bubbleBorderRadius: 17, bubbleMaxWidth: 91 },
+      user: { name: 'Dreamer', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ef9c99"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#ffe5dc', font: "system-ui, sans-serif", bubbleBackgroundColor: '#563336', bubblePadding: 12, bubbleBorderRadius: 17, bubbleMaxWidth: 81 },
+      window: { backgroundColor: '#231b25', backgroundImageUrl: null },
+      inputArea: { backgroundColor: '#3b2b31', textColor: '#f8eae5' }
     },
     {
       id: 'preset-deep-space',
-      name: 'Deep Space Neon 🌌',
+      name: 'Deep Space Neon',
       matchPatterns: ['/\\[space\\]/i'],
       urlPatterns: [],
-      assistant: { name: 'Cosmos Core', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2382e9ff"><path d="M12 2 9.8 8.8 3 11l6.8 2.2L12 20l2.2-6.8L21 11l-6.8-2.2L12 2Z"/></svg>`, standingImageUrl: null, textColor: '#82e9ff', font: "'Segoe UI', system-ui, sans-serif", bubbleBackgroundColor: 'rgba(13, 41, 66, 0.94)', bubblePadding: 11, bubbleBorderRadius: 15, bubbleMaxWidth: 92 },
-      user: { name: 'Astronaut', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23c4b5fd"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#c4b5fd', font: "'Segoe UI', system-ui, sans-serif", bubbleBackgroundColor: 'rgba(32, 35, 74, 0.94)', bubblePadding: 11, bubbleBorderRadius: 15, bubbleMaxWidth: 82 },
-      window: { backgroundColor: '#030914', backgroundImageUrl: null },
-      inputArea: { backgroundColor: '#0b1b30', textColor: '#e6faff' }
+      assistant: { name: 'Cosmos Core', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#89b7ed"><path d="M12 2 9.8 8.8 3 11l6.8 2.2L12 20l2.2-6.8L21 11l-6.8-2.2L12 2Z"/></svg>`, standingImageUrl: null, textColor: '#e3ebf8', font: "system-ui, sans-serif", bubbleBackgroundColor: '#1a2438', bubblePadding: 11, bubbleBorderRadius: 15, bubbleMaxWidth: 92 },
+      user: { name: 'Astronaut', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#afbbef"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#e5eaff', font: "system-ui, sans-serif", bubbleBackgroundColor: '#283758', bubblePadding: 11, bubbleBorderRadius: 15, bubbleMaxWidth: 82 },
+      window: { backgroundColor: '#0e1422', backgroundImageUrl: null },
+      inputArea: { backgroundColor: '#1d293e', textColor: '#edf2fd' }
     },
     {
       id: 'preset-minimalist-slate',
-      name: 'Minimalist Slate 📓',
+      name: 'Minimalist Slate',
       matchPatterns: ['/\\[slate\\]/i'],
       urlPatterns: [],
-      assistant: { name: 'Assistant', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23f1f5f9"><path d="M4 4h16v16H4V4Zm4 4v2h8V8H8Zm0 4v2h8v-2H8Zm0 4v2h5v-2H8Z"/></svg>`, standingImageUrl: null, textColor: '#f1f5f9', font: "system-ui, -apple-system, 'Segoe UI', sans-serif", bubbleBackgroundColor: 'rgba(30, 41, 59, 0.96)', bubblePadding: 10, bubbleBorderRadius: 10, bubbleMaxWidth: 92 },
-      user: { name: 'You', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23e2e8f0"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#e2e8f0', font: "system-ui, -apple-system, 'Segoe UI', sans-serif", bubbleBackgroundColor: 'rgba(51, 65, 85, 0.96)', bubblePadding: 10, bubbleBorderRadius: 10, bubbleMaxWidth: 82 },
-      window: { backgroundColor: '#0f172a', backgroundImageUrl: null },
-      inputArea: { backgroundColor: '#1e293b', textColor: '#f8fafc' }
+      assistant: { name: 'Assistant', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#c7d0da"><path d="M4 4h16v16H4V4Zm4 4v2h8V8H8Zm0 4v2h8v-2H8Zm0 4v2h5v-2H8Z"/></svg>`, standingImageUrl: null, textColor: '#edf0f2', font: "system-ui, sans-serif", bubbleBackgroundColor: '#252a30', bubblePadding: 10, bubbleBorderRadius: 10, bubbleMaxWidth: 92 },
+      user: { name: 'You', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#adbccc"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#f0f3f5', font: "system-ui, sans-serif", bubbleBackgroundColor: '#353d46', bubblePadding: 10, bubbleBorderRadius: 10, bubbleMaxWidth: 82 },
+      window: { backgroundColor: '#191c20', backgroundImageUrl: null },
+      inputArea: { backgroundColor: '#2b3036', textColor: '#f3f5f7' }
     },
     {
       id: 'preset-golden-luxe',
-      name: 'Golden Amber Luxe ⚜️',
+      name: 'Golden Amber Luxe',
       matchPatterns: ['/\\[gold\\]/i', '/\\[luxe\\]/i'],
       urlPatterns: [],
-      assistant: { name: 'Royal Oracle', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffe29a"><path d="M5 16 3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5Zm0 2h14v2H5v-2Z"/></svg>`, standingImageUrl: null, textColor: '#ffe29a', font: "Georgia, 'Times New Roman', serif", bubbleBackgroundColor: 'rgba(53, 38, 15, 0.96)', bubblePadding: 12, bubbleBorderRadius: 13, bubbleMaxWidth: 90 },
-      user: { name: 'Sovereign', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffd07a"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#ffd07a', font: "Georgia, 'Times New Roman', serif", bubbleBackgroundColor: 'rgba(71, 49, 19, 0.96)', bubblePadding: 12, bubbleBorderRadius: 13, bubbleMaxWidth: 80 },
-      window: { backgroundColor: '#100c08', backgroundImageUrl: null },
-      inputArea: { backgroundColor: '#231b10', textColor: '#fff6dc' }
+      assistant: { name: 'Royal Oracle', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#e1b772"><path d="M5 16 3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5Zm0 2h14v2H5v-2Z"/></svg>`, standingImageUrl: null, textColor: '#f3eadb', font: "system-ui, sans-serif", bubbleBackgroundColor: '#342b20', bubblePadding: 12, bubbleBorderRadius: 13, bubbleMaxWidth: 90 },
+      user: { name: 'Sovereign', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#efd2a1"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#faebce', font: "system-ui, sans-serif", bubbleBackgroundColor: '#4d3b23', bubblePadding: 12, bubbleBorderRadius: 13, bubbleMaxWidth: 80 },
+      window: { backgroundColor: '#201b14', backgroundImageUrl: null },
+      inputArea: { backgroundColor: '#3b3023', textColor: '#f7eddd' }
     },
     {
       id: 'preset-nordic-frost',
-      name: 'Nordic Frost Ice ❄️',
+      name: 'Nordic Frost Ice',
       matchPatterns: ['/\\[frost\\]/i', '/\\[ice\\]/i'],
       urlPatterns: [],
-      assistant: { name: 'Frost AI', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23d9f5ff"><path d="M11 2h2v7l5-5 2 2-5 5h7v2h-7l5 5-2 2-5-5v7h-2v-7l-5 5-2-2 5-5H2v-2h7L4 6l2-2 5 5V2Z"/></svg>`, standingImageUrl: null, textColor: '#d9f5ff', font: "'Segoe UI', system-ui, sans-serif", bubbleBackgroundColor: 'rgba(18, 48, 77, 0.95)', bubblePadding: 11, bubbleBorderRadius: 16, bubbleMaxWidth: 91 },
-      user: { name: 'Explorer', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23bae6fd"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#bae6fd', font: "'Segoe UI', system-ui, sans-serif", bubbleBackgroundColor: 'rgba(27, 66, 101, 0.95)', bubblePadding: 11, bubbleBorderRadius: 16, bubbleMaxWidth: 81 },
-      window: { backgroundColor: '#07111f', backgroundImageUrl: null },
-      inputArea: { backgroundColor: '#10233b', textColor: '#effbff' }
+      assistant: { name: 'Frost AI', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#a9d8ee"><path d="M11 2h2v7l5-5 2 2-5 5h7v2h-7l5 5-2 2-5-5v7h-2v-7l-5 5-2-2 5-5H2v-2h7L4 6l2-2 5 5V2Z"/></svg>`, standingImageUrl: null, textColor: '#e9f1f7', font: "system-ui, sans-serif", bubbleBackgroundColor: '#243547', bubblePadding: 11, bubbleBorderRadius: 16, bubbleMaxWidth: 91 },
+      user: { name: 'Explorer', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#c4e5f4"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#e7f5ff', font: "system-ui, sans-serif", bubbleBackgroundColor: '#344b60', bubblePadding: 11, bubbleBorderRadius: 16, bubbleMaxWidth: 81 },
+      window: { backgroundColor: '#17212c', backgroundImageUrl: null },
+      inputArea: { backgroundColor: '#283a4b', textColor: '#eef7ff' }
     },
     {
       id: 'preset-dracula-gothic',
-      name: 'Dracula Gothic 🧛',
+      name: 'Dracula Gothic',
       matchPatterns: ['/\\[dracula\\]/i', '/\\[gothic\\]/i'],
       urlPatterns: [],
-      assistant: { name: 'Vampire Lord', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23f5c2e7"><path d="M3 4h6l3 4 3-4h6l-3 16-6-5-6 5L3 4Z"/></svg>`, standingImageUrl: null, textColor: '#f5c2e7', font: "'Cascadia Code', 'Fira Code', monospace", bubbleBackgroundColor: 'rgba(50, 29, 69, 0.96)', bubblePadding: 11, bubbleBorderRadius: 13, bubbleMaxWidth: 91 },
-      user: { name: 'Hunter', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffb3c7"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#ffb3c7', font: "'Cascadia Code', 'Fira Code', monospace", bubbleBackgroundColor: 'rgba(72, 32, 57, 0.96)', bubblePadding: 11, bubbleBorderRadius: 13, bubbleMaxWidth: 81 },
-      window: { backgroundColor: '#100b1a', backgroundImageUrl: null },
-      inputArea: { backgroundColor: '#1f1630', textColor: '#f8eaff' }
+      assistant: { name: 'Vampire Lord', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#c5a3ce"><path d="M3 4h6l3 4 3-4h6l-3 16-6-5-6 5L3 4Z"/></svg>`, standingImageUrl: null, textColor: '#f0e5f0', font: "system-ui, sans-serif", bubbleBackgroundColor: '#322436', bubblePadding: 11, bubbleBorderRadius: 13, bubbleMaxWidth: 91 },
+      user: { name: 'Hunter', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#df9eb8"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#f9e0e9', font: "system-ui, sans-serif", bubbleBackgroundColor: '#492b3c', bubblePadding: 11, bubbleBorderRadius: 13, bubbleMaxWidth: 81 },
+      window: { backgroundColor: '#211923', backgroundImageUrl: null },
+      inputArea: { backgroundColor: '#37273a', textColor: '#f6eaf4' }
     },
     {
       id: 'preset-tokyo-midnight',
-      name: 'Tokyo Midnight 🗼',
+      name: 'Tokyo Midnight',
       matchPatterns: ['/\\[tokyo\\]/i', '/\\[midnight\\]/i'],
       urlPatterns: [],
-      assistant: { name: 'Neon AI', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2367e8f9"><path d="m12 2 3 7h5l-4 4 2 9-6-4-6 4 2-9-4-4h5l3-7Z"/></svg>`, standingImageUrl: null, textColor: '#67e8f9', font: "'Segoe UI', 'Outfit', sans-serif", bubbleBackgroundColor: 'rgba(16, 42, 58, 0.96)', bubblePadding: 11, bubbleBorderRadius: 15, bubbleMaxWidth: 92 },
-      user: { name: 'Cyber Citizen', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23fda4af"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#fda4af', font: "'Segoe UI', 'Outfit', sans-serif", bubbleBackgroundColor: 'rgba(55, 24, 45, 0.96)', bubblePadding: 11, bubbleBorderRadius: 15, bubbleMaxWidth: 82 },
-      window: { backgroundColor: '#060914', backgroundImageUrl: null },
-      inputArea: { backgroundColor: '#11182a', textColor: '#edfaff' }
+      assistant: { name: 'Neon AI', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#83cbd3"><path d="m12 2 3 7h5l-4 4 2 9-6-4-6 4 2-9-4-4h5l3-7Z"/></svg>`, standingImageUrl: null, textColor: '#e1f0f3', font: "system-ui, sans-serif", bubbleBackgroundColor: '#1e2e3a', bubblePadding: 11, bubbleBorderRadius: 15, bubbleMaxWidth: 92 },
+      user: { name: 'Cyber Citizen', icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#e998b6"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.5 0-8 2.8-8 5v3h16v-3c0-2.2-2.5-5-8-5Z"/></svg>`, standingImageUrl: null, textColor: '#f7e6ef', font: "system-ui, sans-serif", bubbleBackgroundColor: '#3e2a3b', bubblePadding: 11, bubbleBorderRadius: 15, bubbleMaxWidth: 82 },
+      window: { backgroundColor: '#131924', backgroundImageUrl: null },
+      inputArea: { backgroundColor: '#222e40', textColor: '#eaf3fb' }
     }
   ];
 
@@ -919,8 +930,17 @@
   }
 
   // --- Process Message Elements for Avatars (Exact AI-UX-Customizer side-avatar-container architecture) ---
+  function usesNativeMessageStyle(theme) {
+    return theme.id === 'preset-native-default'
+      && !Object.values(theme.assistant || {}).some((value) => value != null && value !== '')
+      && !Object.values(theme.user || {}).some((value) => value != null && value !== '');
+  }
+
   function processMessageElement(node) {
     if (!node || !(node instanceof HTMLElement)) return;
+    const activeTheme = getActiveTheme();
+    if (usesNativeMessageStyle(activeTheme)) return;
+
     const tagName = node.tagName.toLowerCase();
     const roleAttr = node.getAttribute('data-message-author-role');
 
@@ -929,9 +949,9 @@
       role = 'user';
     } else if (tagName === 'model-response' || roleAttr === 'assistant' || node.classList.contains('agent-turn')) {
       role = 'assistant';
-    } else if (node.matches?.('[data-testid="user-message"], [data-testid="human-message"], .font-user-message')) {
+    } else if (node.matches?.(`[data-testid="user-message"], [data-testid="human-message"], .font-user-message, ${chatGptMessages.user}`)) {
       role = 'user';
-    } else if (node.matches?.('[data-testid="assistant-turn"], [data-testid="assistant-message"], .font-claude-response')) {
+    } else if (node.matches?.(`[data-testid="assistant-turn"], [data-testid="assistant-message"], .font-claude-response, ${chatGptMessages.assistant}`)) {
       role = 'assistant';
     }
     if (!role) return;
@@ -955,6 +975,7 @@
     if (!container) {
       container = document.createElement('div');
       container.className = 'side-avatar-container';
+      container.dataset.aiThemeCustomAvatar = '';
       const iconSpan = document.createElement('span');
       iconSpan.className = 'side-avatar-icon';
       const nameDiv = document.createElement('div');
@@ -964,7 +985,6 @@
       node.prepend(container);
     }
 
-    const activeTheme = getActiveTheme();
     const actor = role === 'user' ? activeTheme.user : activeTheme.assistant;
     const nameDiv = container.querySelector('.side-avatar-name');
     if (actor?.name) {
@@ -989,8 +1009,11 @@
 
   function renderAllAvatars() {
     if (!document.body) return;
-    const selectors = MESSAGE_SELECTOR;
-    document.querySelectorAll(selectors).forEach(processMessageElement);
+    if (usesNativeMessageStyle(getActiveTheme())) {
+      document.querySelectorAll('[data-ai-theme-custom-avatar]').forEach((avatar) => avatar.remove());
+      return;
+    }
+    document.querySelectorAll(MESSAGE_SELECTOR).forEach(processMessageElement);
   }
 
   // --- Standing Character Images Renderer ---
@@ -1060,7 +1083,7 @@
     root.style.setProperty('--aiuxc-user-icon', `url("${userIconUrl}")`);
     root.style.setProperty('--aiuxc-assistant-icon', `url("${asstIconUrl}")`);
 
-    let css = `
+    let css = usesNativeMessageStyle(activeTheme) ? '' : `
       ${MESSAGE_SELECTOR} {
         position: relative !important;
         overflow: visible !important;
@@ -1106,7 +1129,8 @@
       }
 
       /* User Avatar on Right */
-      user-query .side-avatar-container, [data-message-author-role="user"] .side-avatar-container, .user-turn .side-avatar-container, [data-testid="user-message"] .side-avatar-container, [data-testid="human-message"] .side-avatar-container {
+      user-query .side-avatar-container, [data-message-author-role="user"] .side-avatar-container, .user-turn .side-avatar-container, [data-testid="user-message"] .side-avatar-container, [data-testid="human-message"] .side-avatar-container,
+      ${chatGptMessages.user} > .side-avatar-container {
         left: 100% !important;
         margin-left: 12px !important;
       }
@@ -1115,7 +1139,8 @@
       }
 
       /* Assistant Avatar on Left */
-      model-response .side-avatar-container, [data-message-author-role="assistant"] .side-avatar-container, .agent-turn .side-avatar-container, [data-testid="assistant-turn"] .side-avatar-container, [data-testid="assistant-message"] .side-avatar-container {
+      model-response .side-avatar-container, [data-message-author-role="assistant"] .side-avatar-container, .agent-turn .side-avatar-container, [data-testid="assistant-turn"] .side-avatar-container, [data-testid="assistant-message"] .side-avatar-container,
+      ${chatGptMessages.assistant} > .side-avatar-container {
         right: 100% !important;
         margin-right: 12px !important;
       }
@@ -1140,7 +1165,8 @@
       }
 
       /* ChatGPT Specific Margin space for side avatars */
-      [data-message-author-role="user"], [data-message-author-role="assistant"], .user-turn, .agent-turn {
+      [data-message-author-role="user"], [data-message-author-role="assistant"], .user-turn, .agent-turn,
+      ${chatGptMessages.user}, ${chatGptMessages.assistant} {
         margin-left: ${iconSize + 16}px !important;
         margin-right: ${iconSize + 16}px !important;
         width: calc(100% - ${(iconSize + 16) * 2}px) !important;
@@ -1283,18 +1309,18 @@
     btn.style.setProperty('position', 'fixed', 'important');
     let bottom = 85;
     if (CURRENT_PLATFORM === PLATFORMS.CHATGPT) {
-      const composer = document.querySelector('form:has(#prompt-textarea), #composer-background, form[data-type="unified-composer"], form');
+      const composer = queryFirstElement(getInputAreaSelectors());
       if (composer instanceof HTMLElement) {
         const rect = composer.getBoundingClientRect();
         if (rect && Number.isFinite(rect.top) && rect.top > 0) {
-          bottom = Math.max(20, Math.round(window.innerHeight - rect.top) + 12);
+          bottom = Math.min(window.innerHeight - 56, Math.max(20, Math.round(window.innerHeight - rect.top) + 12));
         }
       }
     }
     btn.style.setProperty('bottom', `${bottom}px`, 'important');
     btn.style.setProperty('right', '20px', 'important');
-    btn.style.setProperty('z-index', '2147483647', 'important');
-    btn.style.setProperty('background', 'rgba(6, 182, 212, 0.9)', 'important');
+    btn.style.setProperty('z-index', '2147483645', 'important');
+    btn.style.setProperty('background', '#28675f', 'important');
     btn.style.setProperty('border-radius', '50%', 'important');
     btn.style.setProperty('color', '#fff', 'important');
     btn.style.setProperty('display', 'flex', 'important');
@@ -1314,9 +1340,7 @@
       align-self: center !important;
       color: ${isGemini
         ? 'var(--mat-icon-button-icon-color, var(--mat-sys-on-surface-variant, #5f6368))'
-        : platform === PLATFORMS.CLAUDE
-          ? 'currentColor'
-          : '#c4c7c5'} !important;
+        : 'currentColor'} !important;
       cursor: pointer !important;
       display: flex !important;
       align-items: center !important;
@@ -1325,7 +1349,6 @@
       pointer-events: auto !important;
       flex-shrink: 0 !important;
       box-shadow: none !important;
-      outline: none !important;
       transition: background-color 120ms ease, color 120ms ease, transform 120ms ease !important;
     `;
   }
@@ -1342,6 +1365,8 @@
       btn.type = 'button';
       btn.title = t('aria_settings');
       btn.setAttribute('aria-label', t('aria_settings'));
+      btn.setAttribute('aria-controls', `${APPID}-settings-panel`);
+      btn.setAttribute('aria-expanded', 'false');
       mount(btn, createPaletteIcon());
       btn.onclick = (e) => {
         e.preventDefault();
@@ -1456,11 +1481,19 @@
   // --- Settings Panel ---
   let settingsPanelEl = null;
 
+  function closeSettingsPanel() {
+    settingsPanelEl.style.display = 'none';
+    const trigger = document.getElementById(`${APPID}-settings-btn`);
+    trigger?.setAttribute('aria-expanded', 'false');
+    trigger?.focus();
+  }
+
   function toggleSettingsPanel() {
     if (settingsPanelEl && settingsPanelEl.style.display !== 'none') {
-      settingsPanelEl.style.display = 'none';
+      closeSettingsPanel();
     } else {
       renderSettingsPanel();
+      document.getElementById(`${APPID}-close-settings`)?.focus();
     }
   }
 
@@ -1469,17 +1502,25 @@
     if (!settingsPanelEl) {
       settingsPanelEl = document.createElement('div');
       settingsPanelEl.id = `${APPID}-settings-panel`;
+      settingsPanelEl.setAttribute('role', 'region');
+      settingsPanelEl.setAttribute('aria-labelledby', `${APPID}-settings-title`);
+      settingsPanelEl.onkeydown = (event) => {
+        if (event.key !== 'Escape') return;
+        event.stopPropagation();
+        closeSettingsPanel();
+      };
       settingsPanelEl.style.cssText = `
         position: fixed !important;
-        bottom: 85px !important;
-        right: 20px !important;
-        z-index: 2147483647 !important;
-        width: 330px !important;
-        max-height: 75vh !important;
+        bottom: min(85px, 18dvh) !important;
+        right: 16px !important;
+        z-index: 2147483646 !important;
+        width: min(350px, calc(100vw - 32px)) !important;
+        max-height: 76dvh !important;
+        box-sizing: border-box !important;
         overflow-y: auto !important;
-        background: #181825 !important;
-        color: #cdd6f4 !important;
-        border-radius: 14px !important;
+        background: #161f20 !important;
+        color: #e8f1ef !important;
+        border-radius: 18px !important;
         padding: 16px !important;
         border: 1px solid rgba(255,255,255,0.15) !important;
         box-shadow: 0 10px 40px rgba(0,0,0,0.6) !important;
@@ -1548,21 +1589,30 @@
     });
 
     mount(settingsPanelEl,
-      h('div', { style: 'display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;' }, [
-        h('span', { style: 'font-weight:bold; font-size:15px; color:#89b4fa;', text: t('settings_title') }),
+      h('div', { style: 'display:flex; gap:8px; align-items:center; margin-bottom:12px;' }, [
+        h('span', { id: `${APPID}-settings-title`, style: 'flex:1; font-weight:650; font-size:15px; color:#e8f1ef;', text: t('settings_title') }),
         h('button', {
           id: `${APPID}-lang-btn`,
           type: 'button',
-          style: 'background:#313244; color:#a6adc8; border:none; padding:4px 8px; border-radius:6px; cursor:pointer; font-size:12px;',
+          style: 'background:#263334; color:#d2e0dd; border:none; padding:6px 8px; border-radius:8px; cursor:pointer; font-size:12px; white-space:nowrap;',
           text: t('lang_switch'),
           onclick: () => {
             currentLang = currentLang === 'vi' ? 'en' : 'vi';
             saveConfig();
             renderSettingsPanel();
           }
+        }),
+        h('button', {
+          id: `${APPID}-close-settings`,
+          type: 'button',
+          'aria-label': t('close'),
+          title: t('close'),
+          style: 'flex:0 0 36px; width:36px; height:36px; border:1px solid #465556; border-radius:10px; background:#263334; color:#e8f1ef; font-size:22px; line-height:1; cursor:pointer;',
+          text: '×',
+          onclick: closeSettingsPanel
         })
       ]),
-      h('div', { style: 'background:#1e1e2e; padding:10px; border-radius:8px; margin-bottom:12px; font-size:13px;' }, [
+      h('div', { style: 'background:#202d2e; padding:10px; border-radius:8px; margin-bottom:12px; font-size:13px;' }, [
         h('span', { style: 'color:#a6adc8;', text: t('applied_theme') }),
         h('strong', {
           id: `${APPID}-applied-theme-name`,
@@ -1574,7 +1624,7 @@
         h('button', {
           id: `${APPID}-open-presets`,
           type: 'button',
-          style: 'background:linear-gradient(135deg,#f5c2e7,#cba6f7); color:#11111b; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:14px;',
+          style: 'background:#abe2d3; color:#102e29; border:none; padding:10px; border-radius:8px; font-weight:650; cursor:pointer; font-size:14px;',
           text: t('presets_btn'),
           onclick: openPresetsModal
         }),
@@ -1614,12 +1664,13 @@
     );
 
     settingsPanelEl.style.display = 'block';
+    document.getElementById(`${APPID}-settings-btn`)?.setAttribute('aria-expanded', 'true');
   }
 
   const PRESET_MODAL_CSS = `
     #${APPID}-preset-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
       gap: 14px;
     }
     .${APPID}-select-preset {
@@ -1628,64 +1679,72 @@
       min-width: 0;
       padding: 0;
       overflow: hidden;
-      color: #cdd6f4;
+      color: #e8f1ef;
       text-align: left;
-      background: #11111b;
-      border: 1px solid rgba(255,255,255,0.13);
-      border-radius: 14px;
+      background: #202b2c;
+      border: 1px solid #3b4a4a;
+      border-radius: 16px;
       cursor: pointer;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-      transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+      transition: background-color 150ms ease, border-color 150ms ease;
     }
     .${APPID}-select-preset:hover {
-      transform: translateY(-3px);
-      border-color: rgba(203,166,247,0.7);
-      box-shadow: 0 14px 30px rgba(0,0,0,0.34);
+      background: #293938;
+      border-color: #7da99d;
     }
     .${APPID}-select-preset:focus-visible {
-      outline: 3px solid rgba(137,180,250,0.72);
-      outline-offset: 3px;
+      outline: 2px solid #b7eadc;
+      outline-offset: 2px;
     }
     .${APPID}-select-preset.is-active {
-      border-color: #a6e3a1;
-      box-shadow: 0 0 0 1px rgba(166,227,161,0.5), 0 12px 28px rgba(0,0,0,0.3);
+      border-color: #8cd2bf;
     }
     .${APPID}-preset-preview {
       display: flex;
       flex-direction: column;
-      min-height: 188px;
-      padding: 14px;
+      min-height: 124px;
+      gap: 6px;
+      margin: 8px 8px 0;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
       box-sizing: border-box;
+    }
+    .${APPID}-preset-details {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 11px 13px 0;
     }
     .${APPID}-preset-heading {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      flex-wrap: wrap;
       gap: 8px;
-      color: #f8fafc;
       font-size: 14px;
+      line-height: 1.35;
     }
     .${APPID}-active-badge {
       flex: 0 0 auto;
-      padding: 3px 7px;
-      color: #102018;
+      padding: 2px 6px;
+      color: #c6ecdf;
       font-size: 10px;
-      font-weight: 800;
-      background: #a6e3a1;
+      font-weight: 600;
+      background: #314d45;
       border-radius: 999px;
     }
     .${APPID}-palette {
       display: flex;
-      gap: 6px;
-      margin: 11px 0 13px;
+      gap: 3px;
+      flex-shrink: 0;
+      align-self: center;
     }
     .${APPID}-palette-dot {
       display: block;
-      width: 14px;
-      height: 14px;
+      width: 10px;
+      height: 10px;
       border: 1px solid rgba(255,255,255,0.34);
       border-radius: 50%;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.28);
     }
     .${APPID}-preview-assistant,
     .${APPID}-preview-user {
@@ -1693,43 +1752,34 @@
       width: fit-content;
       max-width: 86%;
       padding: 7px 9px;
-      font-size: 11px;
+      font-size: 12px;
       line-height: 1.3;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.08);
     }
     .${APPID}-preview-assistant {
       border-radius: 10px 10px 10px 3px;
     }
     .${APPID}-preview-user {
       align-self: flex-end;
-      margin-top: 8px;
       border-radius: 10px 10px 3px 10px;
     }
     .${APPID}-preview-input {
       display: block;
-      width: 72%;
-      height: 9px;
+      width: 88%;
+      height: 14px;
       margin: auto auto 0;
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 999px;
     }
     .${APPID}-preset-action {
       display: block;
-      padding: 10px 12px;
-      color: #11111b;
+      padding: 5px 13px 11px;
+      color: #b6d7ce;
       font-size: 12px;
-      font-weight: 800;
-      text-align: center;
-      background: linear-gradient(135deg,#89b4fa,#cba6f7);
+      font-weight: 600;
     }
-    .${APPID}-select-preset.is-active .${APPID}-preset-action {
-      background: linear-gradient(135deg,#a6e3a1,#94e2d5);
-    }
-    @media (max-width: 999px) {
-      #${APPID}-preset-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    @media (max-width: 679px) {
-      #${APPID}-preset-grid { grid-template-columns: 1fr; }
+    @media (prefers-reduced-motion: reduce) {
+      .${APPID}-select-preset { transition: none; }
     }
   `;
 
@@ -1740,12 +1790,21 @@
       modal = document.createElement('div');
       modal.id = `${APPID}-presets-modal`;
       modal.style.cssText = `
-        position: fixed; inset:0; z-index:100001; background:rgba(0,0,0,0.78);
-        display:flex; align-items:center; justify-content:center; backdrop-filter:blur(7px);
+        position: fixed; inset:0; z-index:2147483647; background:rgba(6,12,12,0.72);
+        display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px);
       `;
       document.body.appendChild(modal);
     }
 
+    const close = () => {
+      modal.remove();
+      document.getElementById(`${APPID}-open-presets`)?.focus();
+    };
+    modal.onkeydown = (event) => {
+      if (event.key !== 'Escape') return;
+      event.stopPropagation();
+      close();
+    };
     const labels = {
       active: t('active_theme'),
       apply: t('select_preset'),
@@ -1760,7 +1819,7 @@
         config.defaultSet = JSON.parse(JSON.stringify(BUILTIN_PRESETS[index]));
         await saveConfig();
         showToast(t('preset_applied'));
-        modal.remove();
+        close();
       };
       return card;
     });
@@ -1768,28 +1827,23 @@
     mount(modal,
       h('style', { text: PRESET_MODAL_CSS }),
       h('div', {
-        style: 'background:#181825; color:#cdd6f4; width:1040px; max-width:94vw; max-height:88vh; border-radius:16px; padding:22px; overflow-y:auto; border:1px solid rgba(255,255,255,0.16); box-shadow:0 24px 80px rgba(0,0,0,0.55); font-family:system-ui, sans-serif; box-sizing:border-box;'
+        style: 'background:#161f20; color:#e8f1ef; width:980px; max-width:94vw; max-height:90dvh; border-radius:20px; padding:clamp(12px, 2vw, 22px); overflow-y:auto; border:1px solid #465556; box-shadow:0 24px 80px rgba(0,0,0,0.45); font-family:system-ui, sans-serif; box-sizing:border-box;'
       }, [
-        h('div', { style: 'display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:18px;' }, [
-          h('div', {}, [
-            h('h3', { style: 'margin:0; font-size:21px; color:#f5c2e7;', text: t('preset_modal_title') }),
-            h('p', {
-              style: 'margin:5px 0 0; color:#a6adc8; font-size:12px;',
-              text: t('preset_modal_subtitle', { count: BUILTIN_PRESETS.length - 1 })
-            })
-          ]),
+        h('div', { style: 'position:sticky; top:0; z-index:1; display:flex; justify-content:space-between; align-items:center; gap:16px; padding:4px 0 12px; background:#161f20;' }, [
+          h('h3', { style: 'margin:0; font-size:22px; font-weight:650; letter-spacing:-0.02em;', text: t('preset_modal_title') }),
           h('button', {
             id: `${APPID}-close-presets`,
             type: 'button',
             'aria-label': t('close'),
-            style: 'background:#313244; border:1px solid rgba(255,255,255,0.12); border-radius:50%; width:36px; height:36px; color:#cdd6f4; font-size:20px; cursor:pointer;',
+            style: 'flex:0 0 36px; width:36px; height:36px; border:1px solid #465556; border-radius:10px; background:#263334; color:#e8f1ef; font-size:22px; line-height:1; cursor:pointer;',
             text: '×',
-            onclick: () => modal.remove()
+            onclick: close
           })
         ]),
         h('div', { id: `${APPID}-preset-grid` }, presetCards)
       ])
     );
+    document.getElementById(`${APPID}-close-presets`)?.focus();
   }
 
   // --- Theme Editor ---
@@ -1799,7 +1853,7 @@
       modal = document.createElement('div');
       modal.id = `${APPID}-editor-modal`;
       modal.style.cssText = `
-        position: fixed; inset:0; z-index:100001; background:rgba(0,0,0,0.75);
+        position: fixed; inset:0; z-index:2147483647; background:rgba(0,0,0,0.75);
         display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px);
       `;
       document.body.appendChild(modal);
@@ -2041,7 +2095,7 @@
       modal = document.createElement('div');
       modal.id = `${APPID}-json-modal`;
       modal.style.cssText = `
-        position: fixed; inset:0; z-index:100001; background:rgba(0,0,0,0.75);
+        position: fixed; inset:0; z-index:2147483647; background:rgba(0,0,0,0.75);
         display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px);
       `;
       document.body.appendChild(modal);

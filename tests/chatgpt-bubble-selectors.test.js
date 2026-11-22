@@ -20,6 +20,7 @@ function extractBubbleHelpers() {
     'PLATFORMS',
     `${declarations}
      return {
+       getChatGptMessageSelectors,
        buildBubbleSelectors: typeof buildBubbleSelectors === 'function' ? buildBubbleSelectors : null,
        buildBubbleSurfaceCss: typeof buildBubbleSurfaceCss === 'function' ? buildBubbleSurfaceCss : null,
        buildBubbleTextCss: typeof buildBubbleTextCss === 'function' ? buildBubbleTextCss : null,
@@ -51,6 +52,8 @@ test('matches AI-UX-Customizer ChatGPT bubble surface and text selectors', () =>
   assert.match(selectors.userSurface, /div\.user-message-bubble-color/);
   assert.match(selectors.userSurface, /div\.overflow-hidden:has\(img\)/);
   assert.match(selectors.assistantSurface, /div:has\(> \.markdown\)/);
+  assert.match(selectors.userSurface, /transcriptContent-.*\.bg-user-message/);
+  assert.match(selectors.assistantSurface, /transcriptContent-.*MarkdownRoot-.*DilResponseRoot-/);
   assert.match(selectors.userText, /\.whitespace-pre-wrap/);
   assert.match(selectors.assistantText, /\.markdown/);
   assert.doesNotMatch(selectors.assistantSurface, /\[data-message-author-role="assistant"\]$/);
@@ -70,6 +73,14 @@ test('keeps Gemini bubble selectors isolated from ChatGPT DOM', () => {
 test('reserves ChatGPT margin space for side avatars', () => {
   const fn = extractApplyCurrentTheme();
   assert.match(fn, /\[data-message-author-role="user"\], \[data-message-author-role="assistant"\], \.user-turn, \.agent-turn/);
+});
+
+test('targets the modern assistant avatar wrapper with a single relative selector', () => {
+  const { getChatGptMessageSelectors } = extractBubbleHelpers();
+  assert.equal(
+    getChatGptMessageSelectors().assistant,
+    '[class*="transcriptContent-"] div:has(> [class*="MarkdownRoot-"] [class*="DilResponseRoot-"])',
+  );
 });
 
 test('splits ChatGPT bubble surface and text styling like AI-UX-Customizer', () => {

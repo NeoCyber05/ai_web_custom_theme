@@ -78,7 +78,12 @@ function walk(root) {
   return [root, ...root.children.flatMap(walk)];
 }
 
-test('places the ChatGPT button in the exact trailing grid area instead of the outer grid shell', () => {
+const chatGPTAnchorSelectors = new Function(
+  `${source.match(/const CHATGPT_ANCHOR_SELECTORS = \[[\s\S]+?\];/)[0]}
+  return CHATGPT_ANCHOR_SELECTORS;`,
+)();
+
+function assertChatGPTPlacement(exactSelector) {
   const start = source.indexOf('  function createPaletteIcon() {');
   const end = source.indexOf('\n  // --- Settings Button Lifecycle ---', start);
   assert.notEqual(start, -1);
@@ -96,7 +101,6 @@ test('places the ChatGPT button in the exact trailing grid area instead of the o
   const nativeControls = new FakeElement('div');
   exactTrailing.appendChild(nativeControls);
 
-  const exactSelector = 'form[data-type="unified-composer"] div[class*="[grid-area:trailing]"]';
   const document = {
     body,
     createElement: (tagName) => new FakeElement(tagName),
@@ -108,7 +112,7 @@ test('places the ChatGPT button in the exact trailing grid area instead of the o
     },
     getElementById: (id) => walk(body).find((element) => element.id === id) || null,
     querySelector: (selector) => {
-      if (selector.includes(',')) return gridShell;
+      if (selector.startsWith('form[data-type="unified-composer"]') && selector.endsWith('div[class*="trailing"]')) return gridShell;
       if (selector === exactSelector) return exactTrailing;
       return null;
     },
@@ -148,7 +152,7 @@ test('places the ChatGPT button in the exact trailing grid area instead of the o
   }
 
   function getAnchorSelectors() {
-    return [exactSelector];
+    return chatGPTAnchorSelectors;
   }
 
   const factory = new Function(
@@ -195,6 +199,64 @@ test('places the ChatGPT button in the exact trailing grid area instead of the o
   const button = document.getElementById('ai-theme-custom-settings-btn');
   assert.deepEqual(exactTrailing.children, [button, nativeControls]);
   assert.deepEqual(gridShell.children, [exactTrailing]);
+}
+
+test('places the ChatGPT button beside the native controls in the legacy grid', () => {
+  assertChatGPTPlacement('form[data-type="unified-composer"] div[class*="[grid-area:trailing]"]');
+});
+
+test('places the ChatGPT button beside the native controls in the new composer', () => {
+  assertChatGPTPlacement('[data-composer-body] [class*="ComposerLayoutFooter-"] > div:last-child > div.flex:has(button)');
+});
+
+test('closes the settings panel with the close button or Escape and returns focus', () => {
+  const body = new FakeElement('body');
+  const trigger = new FakeElement('button');
+  trigger.id = 'ai-theme-custom-settings-btn';
+  body.appendChild(trigger);
+
+  let focused;
+  trigger.focus = () => { focused = trigger; };
+  const document = {
+    body,
+    createElement: (tagName) => {
+      const element = new FakeElement(tagName);
+      element.focus = () => { focused = element; };
+      return element;
+    },
+    getElementById: (id) => walk(body).find((element) => element.id === id),
+  };
+  const domBuilders = source.slice(source.indexOf('  const SVG_TAGS'), source.indexOf('  function queryFirstElement'));
+  const panel = source.slice(source.indexOf('  let settingsPanelEl = null;'), source.indexOf('  const PRESET_MODAL_CSS'));
+  const toggle = new Function('document', 'Node', `
+    const APPID = 'ai-theme-custom';
+    const config = { options: {} };
+    const CHAT_MAX_WIDTH_MIN = 30;
+    const CHAT_MAX_WIDTH_MAX = 80;
+    const t = (key) => key;
+    const getActiveTheme = () => ({ name: 'Example Theme' });
+    const openPresetsModal = () => {};
+    const openThemeEditorModal = () => {};
+    const openJsonModal = () => {};
+    ${domBuilders}
+    ${panel}
+    return toggleSettingsPanel;
+  `)(document, FakeElement);
+
+  toggle();
+  const menu = document.getElementById('ai-theme-custom-settings-panel');
+  const close = document.getElementById('ai-theme-custom-close-settings');
+  assert.equal(focused, close);
+  assert.equal(trigger.attributes['aria-expanded'], 'true');
+  close.onclick();
+  assert.equal(menu.style.display, 'none');
+  assert.equal(trigger.attributes['aria-expanded'], 'false');
+  assert.equal(focused, trigger);
+
+  toggle();
+  menu.onkeydown({ key: 'Escape', stopPropagation() {} });
+  assert.equal(menu.style.display, 'none');
+  assert.equal(focused, trigger);
 });
 
 test('repositions the Gemini button when Angular replaces children inside the input area', () => {

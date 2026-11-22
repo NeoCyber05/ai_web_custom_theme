@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         AI Prompt Deck
-// @version      2.0.2
+// @version      2.0.3
 // @license      MIT
 // @description  1-Click Prompt & Text Snippet manager for ChatGPT, Gemini, and Claude. Features EN/VI multilingual support, category manager, and JSON import/export.
 // @icon         data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff9800'%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z'/%3E%3C/svg%3E
@@ -200,6 +200,7 @@
   // --- Insert Text into Textarea ---
   function insertTextToInput(text) {
     const selectors = [
+      '[data-composer-input] .ProseMirror',
       '#prompt-textarea',
       'div.ProseMirror#prompt-textarea',
       'rich-textarea .ql-editor',
@@ -297,6 +298,9 @@
 
     const btn = document.createElement('button');
     btn.id = `${APPID}-toggle-btn`;
+    btn.type = 'button';
+    btn.setAttribute('aria-controls', `${APPID}-quick-bar`);
+    btn.setAttribute('aria-expanded', 'false');
 
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('width', '22');
@@ -364,11 +368,19 @@
     document.body.appendChild(btn);
   }
 
+  function closeQuickBar() {
+    quickBarEl.style.display = 'none';
+    const trigger = document.getElementById(`${APPID}-toggle-btn`);
+    trigger?.setAttribute('aria-expanded', 'false');
+    trigger?.focus();
+  }
+
   function toggleQuickBar() {
     if (quickBarEl && quickBarEl.style.display !== 'none') {
-      quickBarEl.style.display = 'none';
+      closeQuickBar();
     } else {
       renderQuickBar();
+      document.getElementById(`${APPID}-close-quick-bar`)?.focus();
     }
   }
 
@@ -377,14 +389,22 @@
     if (!quickBarEl) {
       quickBarEl = document.createElement('div');
       quickBarEl.id = `${APPID}-quick-bar`;
+      quickBarEl.setAttribute('role', 'region');
+      quickBarEl.setAttribute('aria-labelledby', `${APPID}-quick-bar-title`);
+      quickBarEl.onkeydown = (event) => {
+        if (event.key !== 'Escape') return;
+        event.stopPropagation();
+        closeQuickBar();
+      };
       quickBarEl.style.cssText = `
         position: fixed !important;
         bottom: 145px !important;
         right: 20px !important;
         left: auto !important;
         z-index: 2147483647 !important;
-        width: 330px !important;
-        max-height: 75vh !important;
+        width: min(358px, calc(100vw - 40px)) !important;
+        max-height: min(75dvh, calc(100dvh - 161px)) !important;
+        box-sizing: border-box !important;
         overflow-y: auto !important;
         background: #181825 !important;
         color: #cdd6f4 !important;
@@ -413,11 +433,12 @@
     `).join('');
 
     setSafeHTML(quickBarEl, `
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <span style="font-weight:bold; font-size:14px; color:#ffb74d;">${t('panel_title')}</span>
+      <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
+        <span id="${APPID}-quick-bar-title" style="flex:1; font-weight:bold; font-size:14px; color:#ffb74d;">${t('panel_title')}</span>
         <button id="${APPID}-lang-btn" style="background:#313244; color:#a6adc8; border:none; padding:4px 8px; border-radius:6px; cursor:pointer; font-size:11px;">
           ${t('lang_switch')}
         </button>
+        <button id="${APPID}-close-quick-bar" type="button" aria-label="${t('close')}" title="${t('close')}" style="flex:0 0 36px; width:36px; height:36px; border:1px solid #45475a; border-radius:10px; background:#313244; color:#cdd6f4; font-size:22px; line-height:1; cursor:pointer;">×</button>
       </div>
 
       <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;">
@@ -435,6 +456,8 @@
     `);
 
     quickBarEl.style.display = 'block';
+    document.getElementById(`${APPID}-toggle-btn`)?.setAttribute('aria-expanded', 'true');
+    document.getElementById(`${APPID}-close-quick-bar`).onclick = closeQuickBar;
 
     document.getElementById(`${APPID}-lang-btn`).onclick = () => {
       currentLang = currentLang === 'vi' ? 'en' : 'vi';

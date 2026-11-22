@@ -163,6 +163,30 @@ test('derives safe preview colors including Native fallbacks', () => {
   assert.equal(helpers.sanitizePreviewColor('red;display:none', '#123456'), '#123456');
 });
 
+test('restores built-in Native messages and respects a customized copy of Native', () => {
+  const start = source.indexOf('  function usesNativeMessageStyle(');
+  const end = source.indexOf('\n  // --- Standing Character Images Renderer ---', start);
+  const [nativePreset] = extractPresets();
+  let removed = false;
+  const document = {
+    body: {},
+    querySelectorAll: (selector) => selector === '[data-ai-theme-custom-avatar]'
+      ? [{ remove: () => { removed = true; } }]
+      : [],
+  };
+  const { renderAllAvatars, usesNativeMessageStyle } = new Function(
+    'document', 'getActiveTheme',
+    `${source.slice(start, end)}; return { renderAllAvatars, usesNativeMessageStyle };`,
+  )(document, () => nativePreset);
+
+  renderAllAvatars();
+  assert.ok(removed);
+  assert.equal(usesNativeMessageStyle({
+    ...nativePreset,
+    user: { ...nativePreset.user, bubblePadding: 0 },
+  }), false);
+});
+
 test('builds designed bubble CSS and leaves Native geometry untouched', () => {
   const helpers = extractThemeHelpers();
   assert.equal(typeof helpers.buildBubbleThemeCss, 'function');

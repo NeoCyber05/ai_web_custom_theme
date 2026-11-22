@@ -42,6 +42,8 @@ test('targets only the native ChatGPT composer surface and editor', () => {
 
   assert.match(css, /form\[data-type="unified-composer"\] div\[style\*="border-radius"\]/);
   assert.match(css, /div\.ProseMirror#prompt-textarea/);
+  assert.match(css, /\[data-composer-body\].*background-color: #160b24/);
+  assert.match(css, /\[data-composer-input\] \.ProseMirror.*color: #00ffcc/);
   assert.match(css, /background-color: transparent !important/);
   assert.match(css, /font-family: 'Cascadia Code', monospace !important/);
   assert.doesNotMatch(css, /(^|,\s*)form(?:,|\s*\{)/m);
